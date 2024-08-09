@@ -1,13 +1,9 @@
 package controllers
 
-import akka.http.scaladsl.model.HttpHeader.ParsingResult.Ok
-import models.DataModel
 import play.api.libs.json.Json
-import play.api.mvc.Results.Status
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import services.GitHubServices
 
-import java.awt.Desktop.Action
 import javax.inject._
 import scala.concurrent.ExecutionContext
 
