@@ -4,7 +4,8 @@ import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.connectors.GitHubConnector
 import models.{APIError, DataModel}
-import play.api.libs.json.{JsArray, JsValue, Reads}
+import org.bson.json.JsonObject
+import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.LocalDate
 import java.util.Date
@@ -19,7 +20,7 @@ class GitHubServices @Inject()(connector:GitHubConnector){
 
     connector.get[JsValue](url)(Reads.JsValueReads, ex).subflatMap { json =>
       println("Here")
-      json.asOpt[JsArray] match {
+      json.asOpt[JsObject] match {
         case Some(item) =>
           val userName: String = (item \ "login").as[String]
           val dateAccount = (item\ "created_at").as[LocalDate]
