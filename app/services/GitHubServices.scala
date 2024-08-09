@@ -10,7 +10,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GitHubServices @Inject()(connector:GitHubConnector){
-  def getGitHubUser(urlOverride: Option[String] = None, userName: String)(implicit ec: ExecutionContext): EitherT[Future, APIError, DataModel] =
-    connector.get[DataModel](urlOverride.getOrElse(s"https://api.github.com/users/$userName"))
+  def getGitHubUser(userName: String)(implicit ec: ExecutionContext): EitherT[Future, APIError, DataModel] =
+    connector.get[DataModel](s"https://api.github.com/users/$userName")
 
 }
