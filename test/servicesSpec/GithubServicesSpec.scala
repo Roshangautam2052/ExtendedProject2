@@ -27,7 +27,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
     testService.getGitHubUser("SpencerCGriffiths").value map {
       case Right(data) => println("Here",data.userName)
 
-        data.userName shouldBe "SpencerCGriffith"
+        data.userName shouldBe "SpencerCGriffiths"
         }
       }
 
