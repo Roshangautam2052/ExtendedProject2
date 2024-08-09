@@ -49,6 +49,8 @@ tmp
 project/project/
 project/target/
 target/
+project/project/target/config-classes
+project/target/config-classes
 
 # eclipse
 build/
