@@ -22,14 +22,10 @@ class GitHubServices @Inject()(connector:GitHubConnector){
     connector.get[JsValue](url)(Reads.JsValueReads, ex).subflatMap { json =>
       println("Here")
 
-      // Extract the created_at string from the JSON and convert it to LocalDate
-
-
       json.asOpt[JsObject] match {
-
         case Some(item) =>
           val userName: String = (item \ "login").as[String]
-          val dateAccount = (item\ "created_at").as[LocalDate]
+          val dateAccount = ZonedDateTime.parse((item \ "created_at").as[String]).toLocalDate
           val location = (item \ "location").asOpt[String].getOrElse("")
           val numberOfFollowers = (item\ "followers").asOpt[Int].getOrElse(0)
           val numberFollowing = (item \ "following").asOpt[Int].getOrElse(0)
@@ -41,7 +37,6 @@ class GitHubServices @Inject()(connector:GitHubConnector){
       }
     }
   }
-
 }
 //{
 //  "login": "SpencerCGriffiths",

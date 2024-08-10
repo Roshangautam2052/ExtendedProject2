@@ -21,11 +21,10 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   val testService = new GitHubServices(mockConnector)
   val testData: JsValue = Json.obj(
       "login" -> "SpencerCGriffiths",
-      "name" -> "Spencer Clarke-Griffiths",
       "location" -> "",
       "followers" -> 2,
       "following" -> 2,
-      "created_at" -> "2023-04-07T12:50:03Z"
+      "created_at" -> "2023-04-07T12:50:03Z",
   )
 
   "getGitHubUser" should {
@@ -45,8 +44,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
             numberOfFollowers = 2,
             numberFollowing = 2,
             gitHubAccount = true
-          )
-          )
+          ))
       }
     }
   }
