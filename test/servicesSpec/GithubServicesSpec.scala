@@ -21,18 +21,19 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   val testService = new GitHubServices(mockConnector)
   val testData: JsValue = Json.obj(
       "login" -> "SpencerCGriffiths",
-      "location" -> "",
+      "location" -> JsNull,
       "followers" -> 2,
       "following" -> 2,
       "created_at" -> "2023-04-07T12:50:03Z",
   )
 
   "getGitHubUser" should {
-    val url: String = "testUrl"
+    val userName = "SpencerCGriffiths"
+    val url = s"https://api.github.com/users/$userName"
     "return a book" in {
-      (mockConnector.get[DataModel](_: String)(_: OFormat[DataModel], _: ExecutionContext))
+      (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, *, *)
-        .returning(EitherT.rightT[Future, APIError](testData.as[DataModel]))
+        .returning(EitherT.rightT[Future, APIError](testData))
         .once()
 
       whenReady(testService.getGitHubUser(userName = "SpencerCGriffiths").value) {
