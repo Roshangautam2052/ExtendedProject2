@@ -80,11 +80,3 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
     }
   }
 }
-  /*
-  userName: String,
-                    dateAccount: LocalDate,
-                    location : String,
-                    numberOfFollowers: Int,
-                    numberFollowing: Int,
-                    gitHubAccount: Boolean
-   */
