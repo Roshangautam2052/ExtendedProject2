@@ -2,7 +2,7 @@ package services
 
 import cats.data.EitherT
 import com.google.inject.Singleton
-import connector.connectors.GitHubConnector
+import connector.GitHubConnector
 import models.{APIError, DataModel}
 import org.bson.json.JsonObject
 import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
@@ -18,8 +18,16 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
    val url = s"https://api.github.com/users/$userName"
-    connector.get[JsValue](url)(Reads.JsValueReads, ex).subflatMap { json =>
+
+
+    connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap { json =>
       json.asOpt[JsObject] match {
+
+        case Some(item) if (item \ "status").as[String].contains("404") =>
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+
         case Some(item) =>
           val userName: String = (item \ "login").as[String]
           val dateAccount = ZonedDateTime.parse((item \ "created_at").as[String]).toLocalDate
@@ -28,11 +36,10 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
           val numberFollowing = (item \ "following").asOpt[Int].getOrElse(0)
           val githubAccount = true
 
-          Right(repositoryServices.createUser(Right(DataModel(userName = userName, dateAccount = dateAccount,
-            location = location, numberOfFollowers = numberOfFollowers,
-            numberFollowing = numberFollowing, gitHubAccount = githubAccount))))
+          Right(DataModel(userName = userName, dateAccount = dateAccount, location = location, numberOfFollowers = numberOfFollowers, numberFollowing = numberFollowing, gitHubAccount = githubAccount))
+
         case None =>
-          Left(APIError.NotFoundError(404, "User not found in database"))
+          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
       }
     }
   }

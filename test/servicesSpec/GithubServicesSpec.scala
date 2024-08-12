@@ -1,7 +1,7 @@
 package servicesSpec
 
 import cats.data.EitherT
-import connector.connectors.GitHubConnector
+import connector.GitHubConnector
 import models.{APIError, DataModel}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
@@ -27,6 +27,12 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
       "followers" -> 2,
       "following" -> 2,
       "created_at" -> "2023-04-07T12:50:03Z",
+  )
+
+  val testNotFoundUser: JsValue = Json.obj(
+    "message" -> "Not Found",
+    "documentation_url" -> "https://docs.github.com/rest",
+    "status" -> "404"
   )
 
   "getGitHubUser" should {
@@ -60,22 +66,21 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         .once()
 
       whenReady(testService.getGitHubUser(userName).value) { result =>
+        println(result)
         result shouldBe Left(apiError)
-        result shouldBe Status.INTERNAL_SERVER_ERROR
       }
     }
     "return a 404 error" in {
-      val apiError: APIError = APIError.BadAPIResponse(404, "Not Found")
-      val userName: String = "testUserName"
+      val apiNotFound: APIError = APIError.NotFoundError(404, "User not found in Github")
+      val userName: String = "NotAUser"
       val url: String = s"https://api.github.com/users/$userName"
       (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, *, *)
-        .returning(EitherT.leftT[Future, JsValue](apiError))
+        .returning(EitherT.rightT[Future, APIError](testNotFoundUser))
         .once()
 
       whenReady(testService.getGitHubUser(userName).value) { result =>
-        result shouldBe Left(apiError)
-        Status shouldBe Status.NOT_FOUND
+        result shouldBe Left(apiNotFound)
       }
     }
   }
