@@ -1,6 +1,7 @@
 package services
 
 import cats.data.EitherT
+import com.mongodb.client.result.DeleteResult
 import models.{APIError, DataModel}
 import repository.DataRepository
 
@@ -15,6 +16,14 @@ class RepositoryServices @Inject() (dataRepository: DataRepository)(implicit ec:
       case Right(createdUser) => Right(createdUser)
       case Left(APIError.DatabaseError(code, message)) => Left(APIError.DatabaseError(code, message))
       case Left(APIError.BadAPIResponse(code, message)) => Left(APIError.BadAPIResponse(code, message))
+    }
+  }
+
+  def deleteDatabaseUser(userName: String): Future[Either[APIError, DeleteResult]] = {
+    dataRepository.deleteUser(userName).map {
+      case Right(deleteResult) if deleteResult.getDeletedCount > 0 => Right(deleteResult)
+      case Right(deleteResult) if deleteResult.getDeletedCount == 0 => Left(APIError.NotModified(304, s"${userName} not found, cannot delete"))
+      case Left(error) => Left(APIError.DatabaseError(error.httpResponseStatus, error.reason))
     }
   }
 

@@ -11,4 +11,7 @@ GET     /assets/*file               controllers.Assets.versioned(path="/public",
 
 POST    /api/:userName              controllers.ApplicationController.createUser(userName)
 
-POST    /api/create                 controllers.ApplicationController.createDatabaseUser()
+
+# Database users
+POST    /api/create/                 controllers.ApplicationController.createDatabaseUser()
+DELETE /api/delete/:userName         controllers.ApplicationController.deleteDatabaseUser(userName)

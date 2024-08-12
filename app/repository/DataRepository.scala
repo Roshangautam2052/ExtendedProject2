@@ -1,13 +1,17 @@
 package repository
 
-import cats.data.EitherT
+import cats.data.{EitherT, NonEmptySet}
 import models._
-import org.mongodb.scala.model.{IndexModel, Indexes}
+import org.mongodb.scala.bson.conversions.Bson
+import org.mongodb.scala.model.Filters.empty
+import org.mongodb.scala.model.{Filters, IndexModel, Indexes}
+import org.mongodb.scala.result.DeleteResult
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
 @Singleton
 class DataRepository @Inject()(
@@ -33,4 +37,23 @@ class DataRepository @Inject()(
           case exception: Throwable => Left(APIError.DatabaseError(500, s"Failed to insert book due to ${exception.getMessage}"))
         }
     }
+
+  private def byName(userName: String): Bson = {
+    Filters.and(
+      Filters.equal("userName", userName)
+    )
+  }
+
+  def deleteUser(userName: String): Future[Either[APIError, DeleteResult]] = {
+    collection.deleteOne(filter = byName(userName)).toFuture().map {
+      deleteResult =>
+        Right(deleteResult)
+    }
+      .recover{
+        case NonFatal(e) => Left(APIError.DatabaseError(500, s"An unexpected error happened: ${e.getMessage}"))
+      }
+  }
+
+  def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ())
+
 }

@@ -12,6 +12,7 @@ import play.api.inject.Injector
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.WSClient
 import play.api.mvc.MessagesControllerComponents
+import repository.DataRepository
 import shared.TestRequest
 
 import scala.concurrent.ExecutionContext
@@ -25,6 +26,7 @@ trait BaseSpecWithApplication extends BaseSpec with GuiceOneServerPerSuite with 
   implicit val ws: WSClient = app.injector.instanceOf[WSClient]
 
   lazy val component: MessagesControllerComponents = injector.instanceOf[MessagesControllerComponents]
+  lazy val repository: DataRepository = injector.instanceOf[DataRepository]
 
   implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   lazy val injector: Injector = app.injector

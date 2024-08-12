@@ -33,11 +33,17 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       case JsSuccess(userModel, _) =>
         repositoryServices.createUser(userModel).map {
           case Right(createdUser) => Created(Json.toJson(createdUser))
-          case Left(APIError.BadAPIResponse(status, upstreamMessage)) =>BadRequest(Json.toJson(upstreamMessage))
-          case Left(APIError.NotFoundError(status, upstreamMessage)) =>NotFound(Json.toJson(upstreamMessage))
+          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       case JsError(_) =>  Future(BadRequest{Json.toJson(s"Invalid Body: ${request.body}")})
     }
   }
+
+  def deleteDatabaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    repositoryServices.deleteDatabaseUser(userName).map {
+      case Right(deletedUser) => Accepted(Json.toJson(s"Successfully deleted ${userName}"))
+      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+    }
+    }
 
 }
