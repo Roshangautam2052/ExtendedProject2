@@ -1,7 +1,5 @@
 package connector
 
-package connectors
-
 
 import cats.data.EitherT
 import models.APIError
