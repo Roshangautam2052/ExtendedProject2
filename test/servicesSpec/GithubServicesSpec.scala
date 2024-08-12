@@ -29,8 +29,8 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
 
   "getGitHubUser" should {
     val userName = "SpencerCGriffiths"
-    val url = s"https://api.github.com/users/$userName"
-    "return a book" in {
+    "return the Data Model" in {
+      val url = s"https://api.github.com/users/$userName"
       (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, *, *)
         .returning(EitherT.rightT[Future, APIError](testData))
@@ -46,6 +46,18 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
             numberFollowing = 2,
             gitHubAccount = true
           ))
+      }
+    }
+    "return an error" in {
+      val apiError: APIError.BadAPIResponse = APIError.BadAPIResponse(500, "Could not connect")
+      val url: String = "testUrl"
+      (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(url, *, *)
+        .returning(EitherT.leftT[Future, JsValue](apiError))
+        .once()
+
+      whenReady(testService.getGitHubUser(url).value) { result =>
+        result shouldBe Left(apiError)
       }
     }
   }
