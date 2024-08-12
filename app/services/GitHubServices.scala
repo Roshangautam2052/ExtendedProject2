@@ -14,10 +14,11 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector:GitHubConnector){
+class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: RepositoryServices){
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
    val url = s"https://api.github.com/users/$userName"
+
 
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
