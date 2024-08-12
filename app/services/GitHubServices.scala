@@ -34,7 +34,6 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
           val githubAccount = true
           val user = DataModel(userName = userName, dateAccount = dateAccount, location = location,
             numberOfFollowers = numberOfFollowers, numberFollowing = numberFollowing, gitHubAccount = githubAccount)
-          repositoryServices.createUser(user)
           Right(user)
 
         case None =>
