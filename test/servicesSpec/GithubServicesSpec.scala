@@ -13,6 +13,7 @@ import services.GitHubServices
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
+import scala.tools.nsc.interactive.Response
 
 class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures with GuiceOneAppPerSuite with Matchers {
 
@@ -28,8 +29,8 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   )
 
   "getGitHubUser" should {
-    val userName = "SpencerCGriffiths"
     "return the Data Model" in {
+      val userName = "SpencerCGriffiths"
       val url = s"https://api.github.com/users/$userName"
       (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, *, *)
@@ -49,14 +50,15 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
       }
     }
     "return an error" in {
-      val apiError: APIError.BadAPIResponse = APIError.BadAPIResponse(500, "Could not connect")
-      val url: String = "testUrl"
+      val apiError: APIError = APIError.BadAPIResponse(500, "Could not connect")
+      val userName: String = "testUserName"
+      val url: String = s"https://api.github.com/users/$userName"
       (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, *, *)
         .returning(EitherT.leftT[Future, JsValue](apiError))
         .once()
 
-      whenReady(testService.getGitHubUser(url).value) { result =>
+      whenReady(testService.getGitHubUser(userName).value) { result =>
         result shouldBe Left(apiError)
       }
     }
