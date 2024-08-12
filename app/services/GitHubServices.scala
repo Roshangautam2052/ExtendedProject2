@@ -4,17 +4,14 @@ import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
 import models.{APIError, DataModel}
-import org.bson.json.JsonObject
-import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
+import play.api.libs.json.{JsObject, JsValue, Reads}
 
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, ZonedDateTime}
-import java.util.Date
+import java.time.ZonedDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: RepositoryServices){
+class GitHubServices @Inject()(connector:GitHubConnector, repositoryServices: RepositoryServices){
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
    val url = s"https://api.github.com/users/$userName"
@@ -25,7 +22,7 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
     }.subflatMap { json =>
       json.asOpt[JsObject] match {
 
-        case Some(item) if (item \ "status").as[String].contains("404") =>
+        case Some(item) if (item \ "status").asOpt[String].contains("404") =>
           Left(APIError.NotFoundError(404, "User not found in Github"))
 
         case Some(item) =>

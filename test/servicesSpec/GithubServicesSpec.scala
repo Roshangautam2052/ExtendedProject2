@@ -8,19 +8,19 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.http.Status
 import play.api.libs.json.{JsNull, JsValue, Json, OFormat}
-import services.GitHubServices
+import services.{GitHubServices, RepositoryServices}
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
-import scala.tools.nsc.interactive.Response
 
 class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures with GuiceOneAppPerSuite with Matchers {
 
   val mockConnector: GitHubConnector = mock[GitHubConnector]
+  val mockRepo: RepositoryServices = mock[RepositoryServices]
   implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  val testService = new GitHubServices(mockConnector)
+  val testService = new GitHubServices(mockConnector, mockRepo)
+
   val testData: JsValue = Json.obj(
       "login" -> "SpencerCGriffiths",
       "location" -> JsNull,
@@ -66,7 +66,6 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         .once()
 
       whenReady(testService.getGitHubUser(userName).value) { result =>
-        println(result)
         result shouldBe Left(apiError)
       }
     }

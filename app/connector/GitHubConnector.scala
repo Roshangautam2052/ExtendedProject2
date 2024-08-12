@@ -3,11 +3,10 @@ package connector
 
 import cats.data.EitherT
 import models.APIError
-
-import javax.inject.Inject
-import play.api.libs.json.{JsError, JsSuccess, OFormat, Reads}
+import play.api.libs.json.Reads
 import play.api.libs.ws.{WSClient, WSResponse}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class GitHubConnector @Inject()(ws: WSClient) {
