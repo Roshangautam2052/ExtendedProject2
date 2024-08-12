@@ -11,7 +11,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector:GitHubConnector, repositoryServices: RepositoryServices){
+class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: RepositoryServices){
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
    val url = s"https://api.github.com/users/$userName"
@@ -32,8 +32,10 @@ class GitHubServices @Inject()(connector:GitHubConnector, repositoryServices: Re
           val numberOfFollowers = (item\ "followers").asOpt[Int].getOrElse(0)
           val numberFollowing = (item \ "following").asOpt[Int].getOrElse(0)
           val githubAccount = true
-
-          Right(DataModel(userName = userName, dateAccount = dateAccount, location = location, numberOfFollowers = numberOfFollowers, numberFollowing = numberFollowing, gitHubAccount = githubAccount))
+          val user = DataModel(userName = userName, dateAccount = dateAccount, location = location,
+            numberOfFollowers = numberOfFollowers, numberFollowing = numberFollowing, gitHubAccount = githubAccount)
+          repositoryServices.createUser(user)
+          Right(user)
 
         case None =>
           Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
