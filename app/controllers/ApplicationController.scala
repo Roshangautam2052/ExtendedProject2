@@ -1,7 +1,7 @@
 package controllers
 
-import models.APIError
-import play.api.libs.json.Json
+import models.{APIError, DataModel}
+import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Result}
 import services.{GitHubServices, RepositoryServices}
 
@@ -24,6 +24,19 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
         }
       }
       case Left(error) => Future.successful(Status(error.httpResponseStatus))
+    }
+  }
+
+  def createDatabaseUser(): Action[JsValue] = Action.async(parse.json) { implicit request =>
+
+    request.body.validate[DataModel] match {
+      case JsSuccess(userModel, _) =>
+        repositoryServices.createUser(userModel).map {
+          case Right(createdUser) => Created(Json.toJson(createdUser))
+          case Left(APIError.BadAPIResponse(status, upstreamMessage)) =>BadRequest(Json.toJson(upstreamMessage))
+          case Left(APIError.NotFoundError(status, upstreamMessage)) =>NotFound(Json.toJson(upstreamMessage))
+        }
+      case JsError(_) =>  Future(BadRequest{Json.toJson(s"Invalid Body: ${request.body}")})
     }
   }
 
