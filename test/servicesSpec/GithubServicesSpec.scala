@@ -8,6 +8,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.Status
 import play.api.libs.json.{JsNull, JsValue, Json, OFormat}
 import services.GitHubServices
 
@@ -49,7 +50,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
           ))
       }
     }
-    "return an error" in {
+    "return a 500 error" in {
       val apiError: APIError = APIError.BadAPIResponse(500, "Could not connect")
       val userName: String = "testUserName"
       val url: String = s"https://api.github.com/users/$userName"
@@ -60,6 +61,21 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
 
       whenReady(testService.getGitHubUser(userName).value) { result =>
         result shouldBe Left(apiError)
+        result shouldBe Status.INTERNAL_SERVER_ERROR
+      }
+    }
+    "return a 404 error" in {
+      val apiError: APIError = APIError.BadAPIResponse(404, "Not Found")
+      val userName: String = "testUserName"
+      val url: String = s"https://api.github.com/users/$userName"
+      (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(url, *, *)
+        .returning(EitherT.leftT[Future, JsValue](apiError))
+        .once()
+
+      whenReady(testService.getGitHubUser(userName).value) { result =>
+        result shouldBe Left(apiError)
+        Status shouldBe Status.NOT_FOUND
       }
     }
   }
