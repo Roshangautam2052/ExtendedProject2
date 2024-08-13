@@ -19,6 +19,39 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+  def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    repositoryServices.readUser(userName).map {
+      case Right(user) => Ok(Json.toJson(user))
+      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+    }
+  }
+
+  def readDatabaseOrAddFromGithub(userName: String): Action[AnyContent]= Action.async { implicit request =>
+    repositoryServices.readUser(userName).flatMap {
+      // Find in DataBase and Return- OR- Go to Github
+    case Right(user) => Future.successful(Ok(Json.toJson(user)))
+    // If User not in Database condition
+    case Left(error) if error.httpResponseStatus == 404 =>
+
+      service.getGitHubUser(userName).value.flatMap {
+        // Find in Github - Create in Database
+        case Right(dataModel) =>
+          // Create in the database:
+          repositoryServices.createUser(dataModel).map {
+            // Display Created User
+            case Right(createdUser) => Created(Json.toJson(createdUser))
+
+            // Database create errors/ Repository Service Errors
+            case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+          }
+          // Github Errors searching for User/ Github Service
+        case Left(error) => Future.successful(Status(error.httpResponseStatus))
+      }
+      // Mongo Database errors/ API Errors in RepoService
+    case Left(error) => Future.successful(Status(error.httpResponseStatus)(Json.toJson(error.reason)))
+  }
+  }
+
   def createDatabaseUser(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {
       case JsSuccess(userModel, _) =>
@@ -39,11 +72,5 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
-    repositoryServices.readUser(userName).map {
-      case Right(user) => Ok(Json.toJson(user))
-      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
 
-    }
-  }
 }

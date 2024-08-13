@@ -9,7 +9,7 @@ GET           /                             controllers.HomeController.index
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
 
-GET          /api/:userName                controllers.ApplicationController.getGitHubUser(userName)
+GET          /api/:userName                controllers.ApplicationController.readDatabaseOrAddFromGithub(userName)
 
 
 # Database users
@@ -17,4 +17,11 @@ POST          /api/create/                  controllers.ApplicationController.cr
 
 DELETE        /api/delete/:userName         controllers.ApplicationController.deleteDatabaseUser(userName)
 
-GET           /api/getUser/:userName        controllers.ApplicationController.readUser(userName)
+
+
+# Demo Routes
+
+GET         /githubDemo/:userName               controllers.ApplicationController.getGitHubUser(userName)
+
+GET         /apiDemo/:userName                  controllers.ApplicationController.readDataBaseUser(userName)
+
