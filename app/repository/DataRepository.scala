@@ -54,6 +54,15 @@ class DataRepository @Inject()(
       }
   }
 
+  def findUserByName(userName:String): Future[Either[APIError, DataModel]] = {
+    collection.find(byName(userName)).toFuture().map { result =>
+     result.headOption match {
+       case Some(user) => Right(user)
+       case None => Left(APIError.NotFoundError(404, s"The $userName is not found in the database."))
+     }
+    }
+  }
+
   def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ())
 
 }

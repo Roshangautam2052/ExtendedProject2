@@ -27,4 +27,11 @@ class RepositoryServices @Inject() (dataRepository: DataRepository)(implicit ec:
     }
   }
 
+  def readUser(userName:String):Future[Either[APIError, DataModel]] ={
+    dataRepository.findUserByName(userName).map{
+      case Right(user) => Right(user)
+      case Left(APIError.NotFoundError(code, message)) => Left(APIError.NotFoundError(code, message))
+    }
+  }
+
 }

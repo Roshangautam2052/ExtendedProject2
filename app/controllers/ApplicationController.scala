@@ -2,40 +2,33 @@ package controllers
 
 import models.{APIError, DataModel}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
 import services.{GitHubServices, RepositoryServices}
 
 import javax.inject._
-import scala.concurrent.duration.DurationInt
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents,
-                                      val service: GitHubServices, val repositoryServices: RepositoryServices)(implicit val ex: ExecutionContext) extends BaseController{
+                                      val service: GitHubServices, val repositoryServices: RepositoryServices)(implicit val ex: ExecutionContext) extends BaseController {
 
-  def createUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
-    service.getGitHubUser(userName).value.flatMap {
-      case Right(dataModel) => {
-        val response = repositoryServices.createUser(dataModel)
-        response.map {
-          case Right(createdUser) => Created(Json.toJson(createdUser))
-          case Left(APIError.BadAPIResponse(status, upstreamMessage)) =>BadRequest(Json.toJson(upstreamMessage))
-          case Left(APIError.NotFoundError(status, upstreamMessage)) =>NotFound(Json.toJson(upstreamMessage))
-        }
-      }
-      case Left(error) => Future.successful(Status(error.httpResponseStatus))
+  def getGitHubUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    service.getGitHubUser(userName).value.map {
+      case Right(dataModel) => Ok(Json.toJson(dataModel))
+      case Left(error) => Status(error.httpResponseStatus)
     }
   }
 
   def createDatabaseUser(): Action[JsValue] = Action.async(parse.json) { implicit request =>
-
     request.body.validate[DataModel] match {
       case JsSuccess(userModel, _) =>
         repositoryServices.createUser(userModel).map {
           case Right(createdUser) => Created(Json.toJson(createdUser))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
-      case JsError(_) =>  Future(BadRequest{Json.toJson(s"Invalid Body: ${request.body}")})
+      case JsError(_) => Future(BadRequest {
+        Json.toJson(s"Invalid Body: ${request.body}")
+      })
     }
   }
 
@@ -44,6 +37,13 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       case Right(deletedUser) => Accepted(Json.toJson(s"Successfully deleted ${userName}"))
       case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
     }
-    }
+  }
 
+  def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    repositoryServices.readUser(userName).map {
+      case Right(user) => Ok(Json.toJson(user))
+      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+
+    }
+  }
 }
