@@ -17,7 +17,7 @@ POST          /api/create/                  controllers.ApplicationController.cr
 
 DELETE        /api/delete/:userName         controllers.ApplicationController.deleteDatabaseUser(userName)
 
-PATCH       /api/:userName                  controllers.ApplicationController.updateDataBaseUser(userName)
+PATCH       /api/:userName                  controllers.ApplicationController.updateDatabaseUser(userName)
 
 # Demo Routes
 
