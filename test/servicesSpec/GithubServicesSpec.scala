@@ -19,7 +19,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   val mockConnector: GitHubConnector = mock[GitHubConnector]
   val mockRepo: RepositoryServices = mock[RepositoryServices]
   implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  val testService = new GitHubServices(mockConnector, mockRepo)
+  val testService = new GitHubServices(mockConnector)(mockRepo)
 
   val testData: JsValue = Json.obj(
       "login" -> "SpencerCGriffiths",
