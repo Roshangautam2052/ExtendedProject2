@@ -4,8 +4,8 @@ import cats.data.{EitherT, NonEmptySet}
 import models._
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.empty
-import org.mongodb.scala.model.{Filters, IndexModel, Indexes}
-import org.mongodb.scala.result.DeleteResult
+import org.mongodb.scala.model.{Filters, IndexModel, Indexes, ReplaceOptions}
+import org.mongodb.scala.result.{DeleteResult, UpdateResult}
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
@@ -62,6 +62,16 @@ class DataRepository @Inject()(
      }
     }
   }
+
+  def updateUser(userName: String, updatedUser: DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] =
+    collection.replaceOne(
+      filter = byName(userName),
+      replacement = updatedUser,
+      options = new ReplaceOptions().upsert(false)
+    ).toFuture().map(Right(_)).recover {
+      case ex: Exception => Left(APIError.BadAPIResponse(500, s"An error occurred: ${ex.getMessage}"))
+    }
+
 
   def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ())
 

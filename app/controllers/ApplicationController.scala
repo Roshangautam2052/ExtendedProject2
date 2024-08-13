@@ -72,5 +72,18 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+  def updateDatabaseUser(userName: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[DataModel] match {
+      case JsSuccess(userModel, _) =>
+        repoService.updateUser(userName, userModel).map {
+          case Right(updatedUser) => Accepted(Json.toJson(s"Successfully updated ${userName}"))
+          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+        }
+      case JsError(_) => Future(BadRequest {
+        Json.toJson(s"Invalid Body: ${request.body}")
+      })
+    }
+  }
+
 
 }

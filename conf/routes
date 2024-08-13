@@ -17,11 +17,13 @@ POST          /api/create/                  controllers.ApplicationController.cr
 
 DELETE        /api/delete/:userName         controllers.ApplicationController.deleteDatabaseUser(userName)
 
-
+PATCH       /api/:userName                  controllers.ApplicationController.updateDataBaseUser(userName)
 
 # Demo Routes
 
 GET         /githubDemo/:userName               controllers.ApplicationController.getGitHubUser(userName)
 
 GET         /apiDemo/:userName                  controllers.ApplicationController.readDataBaseUser(userName)
+
+
 
