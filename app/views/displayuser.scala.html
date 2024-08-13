@@ -1,0 +1,18 @@
+@(dataModel: DataModel)
+@main("display user"){
+
+<h1>@dataModel.userName</h1>
+<div class = "userDisplay">
+    <p><strong>Username:</strong> @dataModel.userName</p>
+    <p><strong>Date Account Created:</strong> @dataModel.dateAccount</p>
+    <p><strong>Location:</strong> @dataModel.location</p>
+    <p><strong>Number of Followers:</strong> @dataModel.numberOfFollowers</p>
+    <p><strong>Number Following:</strong> @dataModel.numberFollowing</p>
+    <p><strong>Has GitHub Account:</strong> @if(dataModel.gitHubAccount) { Yes } else { No }</p>
+</div>
+<div class ="buttons">
+    <button>Go Back</button>
+    <button>Edit User</button>
+    <button>Delete User</button>
+</div>
+}

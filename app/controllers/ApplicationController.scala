@@ -2,7 +2,8 @@ package controllers
 
 import models.{APIError, DataModel}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
+import play.filters.csrf.CSRF
 import services.{GitHubServices, RepositoryServices}
 
 import javax.inject._
@@ -10,14 +11,27 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents,
-                                      val gitService: GitHubServices, val repoService: RepositoryServices)(implicit val ex: ExecutionContext) extends BaseController {
+                                      val gitService: GitHubServices, val repoService: RepositoryServices)
+                                     (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport{
 
   def getGitHubUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubUser(userName).value.map {
-      case Right(dataModel) => Ok(Json.toJson(dataModel))
+      case Right(dataModel) => Ok(views.html.displayuser(dataModel))
       case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
     }
   }
+
+  /** --------------------------------------- Create Form */
+
+  def accessToken(implicit request: Request[_]) = {
+    CSRF.getToken
+  }
+
+    def displayForm(): Action[AnyContent] = Action.async { implicit request =>
+      accessToken
+      Future.successful(Ok(views.html.adduser()))
+    }
+
 
   def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     repoService.readUser(userName).map {

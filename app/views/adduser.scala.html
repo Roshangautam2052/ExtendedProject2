@@ -1,0 +1,16 @@
+@import models.DataModel
+@import helper._
+
+@(userForm: Form[DataModel])(implicit request: RequestHeader, messages: Messages)
+
+@main("Add User"){
+<div>
+    @helper.form(action = routes.ApplicationController.createDatabaseUser()) {
+    @helper.CSRF.formField
+    @helper.inputText(userForm("name"))
+    @helper.inputText(userForm("surname"))
+    @helper.inputText(userForm("age"))
+    <input class="submitButton" type="submit" value="Submit">
+    }
+</div>
+}

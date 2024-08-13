@@ -25,5 +25,8 @@ GET         /githubDemo/:userName               controllers.ApplicationControlle
 
 GET         /apiDemo/:userName                  controllers.ApplicationController.readDataBaseUser(userName)
 
+GET     /addUser/form     controllers.ApplicationController.createDatabaseUser()
+POST     /addUser/form     controllers.ApplicationController.createDatabaseUser()
+
 
 
