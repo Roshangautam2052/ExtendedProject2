@@ -1,5 +1,6 @@
 package controllers
 
+import models.DataModel.userForm
 import models.{APIError, DataModel}
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
@@ -29,7 +30,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
     def displayForm(): Action[AnyContent] = Action.async { implicit request =>
       accessToken
-      Future.successful(Ok(views.html.adduser()))
+      Future.successful(Ok(views.html.adduser(userForm)))
     }
 
 
