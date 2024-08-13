@@ -39,11 +39,24 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+  def readDatabaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     repositoryServices.readUser(userName).map {
       case Right(user) => Ok(Json.toJson(user))
       case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
 
+    }
+  }
+
+  def updateDatabaseUser(userName: String): Action[JsValue] = Action.async(parse.json) { implicit request =>
+    request.body.validate[DataModel] match {
+      case JsSuccess(userModel, _) =>
+        repositoryServices.updateUser(userName, userModel).map {
+          case Right(updatedUser) => Accepted(Json.toJson(s"Successfully updated ${userName}"))
+          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+        }
+      case JsError(_) => Future(BadRequest {
+        Json.toJson(s"Invalid Body: ${request.body}")
+      })
     }
   }
 }

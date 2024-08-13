@@ -17,4 +17,6 @@ POST          /api/create/                  controllers.ApplicationController.cr
 
 DELETE        /api/delete/:userName         controllers.ApplicationController.deleteDatabaseUser(userName)
 
-GET           /api/getUser/:userName        controllers.ApplicationController.readUser(userName)
+GET           /api/getUser/:userName        controllers.ApplicationController.readDatabaseUser(userName)
+
+PATCH           /api/updateUser/:userName     controllers.ApplicationController.updateDatabaseUser(userName)
