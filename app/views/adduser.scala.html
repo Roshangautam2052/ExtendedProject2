@@ -5,11 +5,14 @@
 
 @main("Add User"){
 <div>
-    @helper.form(action = routes.ApplicationController.createDatabaseUser()) {
+    @helper.form(action = routes.ApplicationController.addBookForm()) {
     @helper.CSRF.formField
-    @helper.inputText(userForm("name"))
-    @helper.inputText(userForm("surname"))
-    @helper.inputText(userForm("age"))
+    @helper.inputText(userForm("userName"))
+    @helper.inputText(userForm("dateAccount"))
+    @helper.inputText(userForm("location"))
+    @helper.inputText(userForm("numberOfFollowers"))
+    @helper.inputText(userForm("numberFollowing"))
+    @helper.inputText(userForm("gitHubAccount"))
     <input class="submitButton" type="submit" value="Submit">
     }
 </div>

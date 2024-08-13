@@ -1,6 +1,10 @@
 package controllers
 
+import models.DataModel.userForm
 import models.{APIError, DataModel}
+import play.api
+import play.api.Logger
+import play.api.data.Form
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
 import play.filters.csrf.CSRF
@@ -28,10 +32,25 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   }
 
     def displayForm(): Action[AnyContent] = Action.async { implicit request =>
-      accessToken
-      Future.successful(Ok(views.html.adduser()))
+      Future.successful(Ok(views.html.adduser(userForm)))
     }
 
+  def addBookForm(): Action[AnyContent] =  Action.async {implicit request =>
+    accessToken //call the accessToken method
+    userForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
+      formWithErrors => {
+        //here write what you want to do if the form has errors
+        api.Logger(s"Form submission errors: ${formWithErrors.errors}")
+        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+      },
+      formData => {
+            repoService.createUser(formData).map {
+              case Right(createdUser) => Created(views.html.displayuser(createdUser))
+              case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+            }
+      }
+    )
+  }
 
   def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     repoService.readUser(userName).map {
