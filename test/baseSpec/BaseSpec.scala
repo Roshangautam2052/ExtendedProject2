@@ -40,7 +40,7 @@ trait BaseSpecWithApplication extends BaseSpec with GuiceOneServerPerSuite with 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure(Map(
-        "mongodb.uri"                                    -> "mongodb://localhost:27017/gitHubTutorial"
+        "mongodb.uri"                                    -> "mongodb://localhost:27017/gitHubTutorialTest"
       ))
       .build()
 
