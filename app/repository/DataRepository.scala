@@ -34,7 +34,7 @@ class DataRepository @Inject()(
         else Left(APIError.BadAPIResponse(500, s"Couldn't add $user to the database"))
       }
         .recover {
-          case exception: Throwable => Left(APIError.DatabaseError(500, s"Failed to insert book due to ${exception.getMessage}"))
+          case exception: Throwable => Left(APIError.DatabaseError(500, s"Failed to insert user due to ${exception.getMessage}"))
         }
     }
 
