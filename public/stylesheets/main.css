@@ -1,23 +1,71 @@
-body {
+html, body {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
   font-weight: <weight>;
   font-style: normal;
-
+  height: 100%;
+  margin: 0;
 }
+
+/*------------------------------- General */
+
+.title {
+colour: #d3d3d3
+}
+
+.buttons {
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 10px;
+    padding: 5px 10px;
+    border: none;
+    text-decoration: none;
+}
+.buttons a {
+text-decoration: none;
+color: #fff;
+}
+
+.buttons:hover {
+    background-color: #6ca6e2;
+    border-color: #1e7e34;
+    text-decoration: none;
+}
+
+
+/*------------------------------- NavBar */
+
 .navbar {
-    height: 80px;
-    z-index: 100;
-    width: 100%;
-    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.1);
-    margin-bottom: 40px;
+    background-color: #007bff;
+    padding: 10px 20px;
 }
 
-
-.navbar.expanded {
-    height: auto;
-    margin-bottom: 20px;
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
+
+.nav-link {
+    color: white;
+    padding: 8px 15px;
+    text-decoration: none;
+    font-size: large;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/*------------------------------- Main Body */
+
+.main-container {
+ display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/*------------------------------- Form Container */
 
 .form-container {
 background-color: #D3D3D3;
@@ -31,4 +79,63 @@ border-radius: 10px;
 width: auto;
 height: auto;
 text-align: center
+}
+
+/*------------------------------- Search Page */
+
+.user-details-container {
+margin: auto;
+}
+.btn-row {
+align-items: center;
+margin: 20px;
+}
+
+.search-container {
+    margin-left: 30px;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+}
+
+.form-control {
+    width: 200px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-right: 10px;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+
+/*------------------------------- Footer */
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 75px;
+    background-color: #007bff;
+    padding: 0 20px;
+    color: white;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.1);
+    margin: auto;
+    font-size: x-large;
+}
+
+.footer-text {
+    margin: auto;
+}
+
+.footer i {
+    font-size: 24px;
 }

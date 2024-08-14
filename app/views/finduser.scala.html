@@ -1,12 +1,12 @@
 @(userForm: Form[UserSearchParameter], user: Option[DataModel])(implicit request: RequestHeader, messages: Messages)
 @main("Display User") {
 
-    <h1 class="title">Find User Profile</h1>
-
     <div class="search-container">
+        <h1 class="title">Find User Profile</h1>
+
         <form action="@routes.ApplicationController.readDatabaseOrAddFromGithub()" method="GET" class="form-inline">
             <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="userName">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <button class="buttons" type="submit">Search</button>
         </form>
     </div>
 
@@ -24,20 +24,22 @@
         </div>
     }
     @if(user.isDefined) {
-        <h3>User Details</h3>
-        <div class="form-container">
-            <p><strong>Username:</strong> @user.get.userName</p>
-            <p><strong>Date Account Created:</strong> @user.get.dateAccount</p>
-            <p><strong>Location:</strong> @user.get.location</p>
-            <p><strong>Number of Followers:</strong> @user.get.numberOfFollowers</p>
-            <p><strong>Number Following:</strong> @user.get.numberFollowing</p>
-            <p><strong>Has GitHub Account:</strong> @user.get.gitHubAccount</p>
-        </div>
-        <div class="buttons">
-            <button>Go Back</button>
-            <button><a href="@routes.ApplicationController.getGitHubRepos(user.get.userName)">Repositories</a> </button>
-            <button>Edit User</button>
-            <button>Delete User</button>
+        <div class="user-details-container">
+            <h3>User Details</h3>
+            <div class="form-container">
+                <p><strong>Username:</strong> @user.get.userName</p>
+                <p><strong>Date Account Created:</strong> @user.get.dateAccount</p>
+                <p><strong>Location:</strong> @user.get.location</p>
+                <p><strong>Number of Followers:</strong> @user.get.numberOfFollowers</p>
+                <p><strong>Number Following:</strong> @user.get.numberFollowing</p>
+                <p><strong>Has GitHub Account:</strong> @user.get.gitHubAccount</p>
+            </div>
+            <div class="btn-row">
+                <button class="buttons">Go Back</button>
+                <button class="buttons"><a href="@routes.ApplicationController.getGitHubRepos(user.get.userName)">Repositories</a> </button>
+                <button class="buttons">Edit User</button>
+                <button class="buttons">Delete User</button>
+            </div>
         </div>
     } else {
         <h1>No user found.</h1>
