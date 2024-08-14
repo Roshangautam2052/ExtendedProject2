@@ -4,7 +4,8 @@
 @(userForm: Form[DataModel])(implicit request: RequestHeader, messages: Messages)
 
 @main("Add User"){
-<div>
+<div class="form-container">
+<div class = "form">
     @helper.form(action = routes.ApplicationController.addBookForm()) {
     @helper.CSRF.formField
     @helper.inputText(userForm("userName"))
@@ -15,5 +16,6 @@
     @helper.inputText(userForm("gitHubAccount"))
     <input class="submitButton" type="submit" value="Submit">
     }
+</div>
 </div>
 }

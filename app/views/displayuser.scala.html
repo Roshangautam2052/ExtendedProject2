@@ -2,7 +2,8 @@
 @main("display user"){
 
 <h1>@dataModel.userName</h1>
-<div class = "userDisplay">
+<div class="form-container">
+<div class = "form">
     <p><strong>Username:</strong> @dataModel.userName</p>
     <p><strong>Date Account Created:</strong> @dataModel.dateAccount</p>
     <p><strong>Location:</strong> @dataModel.location</p>
@@ -14,5 +15,6 @@
     <button>Go Back</button>
     <button>Edit User</button>
     <button>Delete User</button>
+</div>
 </div>
 }
