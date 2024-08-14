@@ -1,26 +1,17 @@
-@(userForm: Form[UserSearchParameter],user:DataModel)(implicit request: RequestHeader, messages: Messages)
+@(userForm: Form[UserSearchParameter], user: DataModel)(implicit request: RequestHeader, messages: Messages)
 @main("display user"){
 
 
 <h1 class="title">Find User Profile</h1>
 
 <div class="search-container">
-    <form action="@routes.ApplicationController.readDatabaseOrAddFromGithub(userForm.toString)" method="GET" class="form-inline">
+    <form action="@routes.ApplicationController.readDatabaseOrAddFromGithub()" method="GET" class="form-inline">
         <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="User Name">
         <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>
 </div>
-@*    <div class = "form">*@
-@*    @for() {*@
-@*        <p><strong>Username:</strong> @dataModel.userName</p>*@
-@*        <p><strong>Date Account Created:</strong> @dataModel.dateAccount</p>*@
-@*        <p><strong>Location:</strong> @dataModel.location</p>*@
-@*        <p><strong>Number of Followers:</strong> @dataModel.numberOfFollowers</p>*@
-@*        <p><strong>Number Following:</strong> @dataModel.numberFollowing</p>*@
-@*        <p><strong>Has GitHub Account:</strong> @if(dataModel.gitHubAccount) { Yes } else { No }</p>*@
-@*    }*@
-@*    </div>*@
+    <div>
 
+    </div>
 
-@*}*@
 }

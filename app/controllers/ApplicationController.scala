@@ -39,21 +39,21 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
 
     def findUser(): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(views.html.finduser(userSearchForm)))
+     Future.successful(Ok(views.html.finduser(userSearchForm)))
     }
 
-  def redirectToSearch(): Action[AnyContent] = Action { implicit request =>
-    userSearchForm.bindFromRequest.fold(
-      formWithErrors => {
-        // Handle form errors if necessary
-        BadRequest(views.html.index())
-      },
-      query => {
-        // Redirect to the `readUser` method, updating the URL
-        Redirect(routes.ApplicationController.readDatabaseOrAddFromGithub(query.toString))
-      }
-    )
-  }
+//  def redirectToSearch(): Action[AnyContent] = Action { implicit request =>
+//    userSearchForm.bindFromRequest.fold(
+//      formWithErrors => {
+//        // Handle form errors if necessary
+//        BadRequest(views.html.index())
+//      },
+//      query => {
+//        // Redirect to the `readUser` method, updating the URL
+//        Redirect(routes.ApplicationController.readDatabaseOrAddFromGithub(query.toString))
+//      }
+//    )
+//  }
 
   def createDatabaseUserForm(): Action[AnyContent] =  Action.async {implicit request =>
     accessToken //call the accessToken method
