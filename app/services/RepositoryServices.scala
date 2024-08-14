@@ -4,13 +4,13 @@ import cats.data.EitherT
 import com.mongodb.client.result.DeleteResult
 import models.{APIError, DataModel}
 import org.mongodb.scala.result
-import repository.DataRepository
+import repository.{DataRepository, DataRepositoryTrait}
 
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RepositoryServices @Inject() (dataRepository: DataRepository)(implicit ec: ExecutionContext) {
+class RepositoryServices @Inject() (dataRepository: DataRepositoryTrait)(implicit ec: ExecutionContext) {
 
   def createUser(user:DataModel): Future[Either[ APIError, DataModel]]={
     dataRepository.createUser(user).map {
