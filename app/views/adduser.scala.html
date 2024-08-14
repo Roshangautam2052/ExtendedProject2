@@ -4,9 +4,11 @@
 @(userForm: Form[DataModel])(implicit request: RequestHeader, messages: Messages)
 
 @main("Add User"){
+
+<h1 class="title">Create Database User</h1>
 <div class="form-container">
 <div class = "form">
-    @helper.form(action = routes.ApplicationController.addBookForm()) {
+    @helper.form(action = routes.ApplicationController.createDatabaseUserForm()) {
     @helper.CSRF.formField
     @helper.inputText(userForm("userName"))
     @helper.inputText(userForm("dateAccount"))

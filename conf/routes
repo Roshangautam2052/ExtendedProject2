@@ -26,7 +26,12 @@ GET         /githubDemo/:userName               controllers.ApplicationControlle
 GET         /apiDemo/:userName                  controllers.ApplicationController.readDataBaseUser(userName)
 
 GET     /addUser/form     controllers.ApplicationController.displayForm()
-POST     /addUser/form     controllers.ApplicationController.addBookForm()
+POST     /addUser/form     controllers.ApplicationController.createDatabaseUserForm()
+
+GET     /findUser             controllers.ApplicationController.findUser()
+
+
+
 
 
 

@@ -1,5 +1,6 @@
 package controllers
 
+import cats.conversions.all.autoConvertProfunctorVariance
 import models.DataModel.userForm
 import models.{APIError, DataModel}
 import play.api
@@ -35,7 +36,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       Future.successful(Ok(views.html.adduser(userForm)))
     }
 
-  def addBookForm(): Action[AnyContent] =  Action.async {implicit request =>
+  def createDatabaseUserForm(): Action[AnyContent] =  Action.async {implicit request =>
     accessToken //call the accessToken method
     userForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
       formWithErrors => {
@@ -50,6 +51,16 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
             }
       }
     )
+  }
+
+  /** --------------------------------------- Create Search Bar */
+
+  def findUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    val query = userName.toLowerCase.strip
+    readDatabaseOrAddFromGithub(query) {
+      case Right(user: DataModel) => Ok(views.html.finduser(user))
+      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+    }
   }
 
   def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
