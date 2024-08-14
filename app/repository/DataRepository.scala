@@ -1,6 +1,7 @@
 package repository
 
 import cats.data.{EitherT, NonEmptySet}
+import com.google.inject.ImplementedBy
 import models._
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters.empty
@@ -12,6 +13,15 @@ import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
+
+@ImplementedBy(classOf[DataRepository])
+trait DataRepositoryTrait {
+  def createUser(user:DataModel): Future[Either[APIError, DataModel]]
+  def deleteUser(userName: String): Future[Either[APIError, DeleteResult]]
+  def findUserByName(userName:String): Future[Either[APIError, DataModel]]
+  def updateUser(userName: String, updatedUser: DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]]
+  def deleteAll(): Future[Unit]
+}
 
 @Singleton
 class DataRepository @Inject()(
@@ -25,9 +35,9 @@ class DataRepository @Inject()(
   )),
   replaceIndexes = false
 
-) {
+) with DataRepositoryTrait {
 
-  def createUser(user:DataModel):Future[Either[ APIError, DataModel]] ={
+  override def createUser(user:DataModel):Future[Either[ APIError, DataModel]] ={
     val mappedUser= collection.insertOne(user).toFuture()
       mappedUser.map { result =>
         if(result.wasAcknowledged()) Right(user)
@@ -44,7 +54,7 @@ class DataRepository @Inject()(
     )
   }
 
-  def deleteUser(userName: String): Future[Either[APIError, DeleteResult]] = {
+  override def deleteUser(userName: String): Future[Either[APIError, DeleteResult]] = {
     collection.deleteOne(filter = byName(userName)).toFuture().map {
       deleteResult =>
         Right(deleteResult)
@@ -54,7 +64,7 @@ class DataRepository @Inject()(
       }
   }
 
-  def findUserByName(userName:String): Future[Either[APIError, DataModel]] = {
+  override def findUserByName(userName:String): Future[Either[APIError, DataModel]] = {
     collection.find(byName(userName)).toFuture().map { result =>
      result.headOption match {
        case Some(user) => Right(user)
@@ -63,7 +73,7 @@ class DataRepository @Inject()(
     }
   }
 
-  def updateUser(userName: String, updatedUser: DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] =
+  override def updateUser(userName: String, updatedUser: DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]] =
     collection.replaceOne(
       filter = byName(userName),
       replacement = updatedUser,
@@ -73,6 +83,6 @@ class DataRepository @Inject()(
     }
 
 
-  def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ())
+  override def deleteAll(): Future[Unit] = collection.deleteMany(empty()).toFuture().map(_ => ())
 
 }
