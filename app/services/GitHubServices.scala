@@ -11,10 +11,10 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: RepositoryServices){
+class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: RepositoryServices) {
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
-   val url = s"https://api.github.com/users/$userName"
+    val url = s"https://api.github.com/users/$userName"
 
 
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
@@ -29,7 +29,7 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
           val userName: String = (item \ "login").as[String]
           val dateAccount = ZonedDateTime.parse((item \ "created_at").as[String]).toLocalDate
           val location = (item \ "location").asOpt[String].getOrElse("")
-          val numberOfFollowers = (item\ "followers").asOpt[Int].getOrElse(0)
+          val numberOfFollowers = (item \ "followers").asOpt[Int].getOrElse(0)
           val numberFollowing = (item \ "following").asOpt[Int].getOrElse(0)
           val githubAccount = true
           val user = DataModel(userName = userName, dateAccount = dateAccount, location = location,
@@ -61,7 +61,6 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
 
             PublicRepoDetails(name, language, pushedAt)
           }.toSeq
-
           Right(repos)
         }
 
