@@ -1,7 +1,5 @@
-@(dataModel: DataModel)
-@import models.DataModel
-@import helper._
-@(user: DataModel)
+@(userSearchParameter: Form[UserSearchParameter])(implicit request: RequestHeader, messages: Messages)
+
 @main("display user"){
 
 
@@ -14,22 +12,4 @@
     </form>
 </div>
 
-
-<div class="form-container">
-<div class = "form">
-    @for(result <- results) {
-    <p><strong>Username:</strong> @dataModel.userName</p>
-    <p><strong>Date Account Created:</strong> @dataModel.dateAccount</p>
-    <p><strong>Location:</strong> @dataModel.location</p>
-    <p><strong>Number of Followers:</strong> @dataModel.numberOfFollowers</p>
-    <p><strong>Number Following:</strong> @dataModel.numberFollowing</p>
-    <p><strong>Has GitHub Account:</strong> @if(dataModel.gitHubAccount) { Yes } else { No }</p>
-    }
-</div>
-<div class ="buttons">
-    <button>Go Back</button>
-    <button>Edit User</button>
-    <button>Delete User</button>
-</div>
-</div>
 }

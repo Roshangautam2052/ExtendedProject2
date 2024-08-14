@@ -21,12 +21,12 @@ PATCH       /api/updateUser/:userName                  controllers.ApplicationCo
 
 # Demo Routes
 
-GET         /githubDemo/:userName               controllers.ApplicationController.getGitHubUser(userName)
+#GET         /githubDemo/:userName               controllers.ApplicationController.getGitHubUser(userName)
 
 GET         /apiDemo/:userName                  controllers.ApplicationController.readDataBaseUser(userName)
 
 GET     /addUser/form     controllers.ApplicationController.displayForm()
-POST     /addUser/form     controllers.ApplicationController.createDatabaseUserForm()
+#POST     /addUser/form     controllers.ApplicationController.createDatabaseUserForm()
 
 GET     /findUser             controllers.ApplicationController.findUser()
 
