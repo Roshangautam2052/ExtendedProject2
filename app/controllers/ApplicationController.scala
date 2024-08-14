@@ -22,7 +22,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   def getGitHubUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubUser(userName).value.map {
-      case Right(dataModel) => Ok(views.html.displayuser(dataModel))
+      case Right(dataModel) => Ok(Json.toJson(dataModel))
       case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
     }
   }
@@ -42,6 +42,19 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     Future.successful(Ok(views.html.finduser(userSearchForm)))
     }
 
+  def redirectToSearch(): Action[AnyContent] = Action { implicit request =>
+    userSearchForm.bindFromRequest.fold(
+      formWithErrors => {
+        // Handle form errors if necessary
+        BadRequest(views.html.index())
+      },
+      query => {
+        // Redirect to the `readUser` method, updating the URL
+        Redirect(routes.ApplicationController.readDatabaseOrAddFromGithub(query.toString))
+      }
+    )
+  }
+
   def createDatabaseUserForm(): Action[AnyContent] =  Action.async {implicit request =>
     accessToken //call the accessToken method
     userForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
@@ -52,7 +65,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       },
       formData => {
             repoService.createUser(formData).map {
-              case Right(createdUser) => Created(views.html.displayuser(createdUser))
+              case Right(createdUser) => Created(Json.toJson(createdUser))
               case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
             }
       }
@@ -71,7 +84,8 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  def readDatabaseOrAddFromGithub(userName: String): Action[AnyContent]= Action.async { implicit request =>
+  def readDatabaseOrAddFromGithub(): Action[AnyContent]= Action.async { implicit request =>
+    val userName = request.getQueryString("User + Name").getOrElse("")
     repoService.readUser(userName).flatMap {
       // Find in DataBase and Return- OR- Go to Github
     case Right(user) => Future.successful(Ok(Json.toJson(user)))
