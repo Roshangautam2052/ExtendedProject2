@@ -3,8 +3,8 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel}
-import play.api.libs.json.{JsObject, JsValue, Reads}
+import models.{APIError, DataModel, PublicRepoDetails}
+import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -39,6 +39,41 @@ class GitHubServices @Inject()(connector:GitHubConnector)(repositoryServices: Re
         case None =>
           Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
       }
+    }
+  }
+
+  def getGitHubRepo(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[PublicRepoDetails]] = {
+    val url = s"https://api.github.com/users/$userName/repos"
+
+    connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {
+      case arr: JsArray =>
+
+        if (arr.value.isEmpty) {
+          Left(APIError.NotFoundError(404, s"No repositories found for user $userName"))
+        } else {
+
+          val repos = arr.value.map { item =>
+            val name = (item \ "name").as[String]
+            val language = (item \ "language").asOpt[String]
+            val pushedAt = (item \ "pushed_at").as[String]
+
+            PublicRepoDetails(name, language, pushedAt)
+          }.toSeq
+
+          Right(repos)
+        }
+
+      case obj: JsObject =>
+        if ((obj \ "status").asOpt[String].contains("404")) {
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+        } else {
+          Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+        }
+
+      case _ =>
+        Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
     }
   }
 }

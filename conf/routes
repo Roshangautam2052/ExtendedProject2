@@ -31,7 +31,7 @@ GET     /addUser/form     controllers.ApplicationController.displayForm()
 GET     /findUser             controllers.ApplicationController.findUser()
 
 
-
+GET /Github/Repo/:userName          controllers.ApplicationController.getGitHubRepos(userName)
 
 
 
