@@ -142,6 +142,13 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+  def getGitRepoFileContent(userName:String, repoName:String, path:String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitRepoFileContent(userName,repoName, path ).value.map {
+      case Right(contents) => Ok(views.html.viewPageContent(contents))
+      case Left(error) => Status(error.httpResponseStatus)
+    }
+  }
+
   def openGitDir(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.openGitDir(userName, repoName, path).value.map {
       case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName))
@@ -149,3 +156,4 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 }
+

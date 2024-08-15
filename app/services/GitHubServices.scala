@@ -3,11 +3,13 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel, PublicRepoDetails, TopLevelModel}
+import models.{APIError, DataModel, FileContent, PublicRepoDetails, TopLevelModel}
 import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.ZonedDateTime
+import java.util.Base64
 import javax.inject.Inject
+import scala.Right
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -80,6 +82,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
   def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents"
 
+
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
     }.subflatMap {
@@ -111,6 +114,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
     }
   }
+
 
   def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
@@ -148,4 +152,30 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
   }
 
 
+
+  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
+    val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
+    connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {json =>
+      json.asOpt[JsObject] match {
+
+        case Some(item) if (item \ "status").asOpt[String].contains("404") =>
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+
+        case Some(item) =>
+          val file: String = (item \ "content").as[String]
+          val clean64 = file.replaceAll("\\s","")
+        val decodedFile = Base64.getDecoder.decode(clean64)
+          val textDecoded = new String(decodedFile, "UTF-8")
+          Right(textDecoded)
+
+        case None =>
+          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
+      }
+    }
+
+
+  }
+  //  val textDecoded = new String(java.util.Base64.getDecoder.decode(fileContent), "UTF-8")
 }

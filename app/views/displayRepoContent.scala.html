@@ -1,4 +1,6 @@
+
 @(repoContents: Option[Seq[TopLevelModel]], userName: String, repoName: String)(implicit request: RequestHeader, messages: Messages)
+
 @main("Display Repo Contents") {
 
     @repoContents.map { repoContentsSeq =>
@@ -7,8 +9,8 @@
             @for(repoContents <- repoContentsSeq) {
                 <div class="form-container">
                     @if(repoContents.format == "file") {
-                    <p>@repoContents.name</p>
-                    <p>@repoContents.path</p>
+                    <p><a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContents.path)">@repoContents.path</a></p>
+                    <p></p>
                     } else {
 
                     <p><a href="@routes.ApplicationController.openGitDir(userName, repoName, repoContents.path)">@repoContents.name</a></p>
