@@ -34,5 +34,8 @@ GET     /findUser             controllers.ApplicationController.findUser()
 GET /Github/repo/:userName          controllers.ApplicationController.getGitHubRepos(userName)
 GET /Github/repo/content/:userName/:repoName        controllers.ApplicationController.getGitDirsAndFiles(userName, repoName)
 
+GET /Github/repo/content/:userName/:repoName/:path       controllers.ApplicationController.getGitRepoFileContent(userName, repoName, path)
+
+
 
 

@@ -3,11 +3,12 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel, PublicRepoDetails, TopLevelModel}
+import models.{APIError, DataModel, FileContent, PublicRepoDetails, TopLevelModel}
 import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.ZonedDateTime
 import javax.inject.Inject
+import scala.Right
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -80,6 +81,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
   def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents"
 
+
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
     }.subflatMap {
@@ -100,6 +102,37 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
 
 
+      case obj: JsObject =>
+        if ((obj \ "status").asOpt[String].contains("404")) {
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+        } else {
+          Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+        }
+
+      case _ =>
+        Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+    }
+  }
+  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FileContent]] = {
+    val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
+    connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {
+      case arr: JsArray =>
+
+        if (arr.value.isEmpty) {
+          Left(APIError.NotFoundError(404, s"This $path is empty"))
+        } else {
+
+          val contents = arr.value.map { item =>
+            val fileContent = (item \ "content").as[String]
+            val textDecoded = new String(java.util.Base64.getDecoder.decode(fileContent))
+
+            FileContent(textDecoded)
+          }.toSeq
+          Right(contents)
+
+        }
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
           Left(APIError.NotFoundError(404, "User not found in Github"))
