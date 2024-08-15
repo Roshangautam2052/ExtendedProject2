@@ -10,14 +10,14 @@ html, body {
 /*------------------------------- General */
 
 .title {
-colour: #d3d3d3
+colour: #153244;
 }
 
 .buttons {
     color: #fff;
-    background-color: #007bff;
-    border-radius: 10px;
-    padding: 5px 10px;
+    background-color: #153244;
+    border-radius: 5px;
+    padding: 10px 15px;
     border: none;
     text-decoration: none;
 }
@@ -27,8 +27,8 @@ color: #fff;
 }
 
 .buttons:hover {
-    background-color: #6ca6e2;
-    border-color: #1e7e34;
+    background-color: #2c7093;
+    border-color: none;
     text-decoration: none;
 }
 
@@ -36,7 +36,7 @@ color: #fff;
 /*------------------------------- NavBar */
 
 .navbar {
-    background-color: #007bff;
+    background-color: #153244;
     padding: 10px 20px;
 }
 
@@ -57,6 +57,37 @@ color: #fff;
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+/*------------------------------- Home Page */
+
+.home-page-container {
+margin: auto;
+margin-top: 20px;
+}
+
+.home-page-container h1 {
+text-align: center;
+color: #153244
+}
+
+.logo {
+height: 400px;
+width: auto;
+}
+
+.robot-cont {
+
+
+}
+
+.waving-robot-cropped {
+  position: fixed;
+    height: 300px;
+    bottom: 0;
+    right: 0;
+    width: auto;
+    margin-bottom: 70px;
+}
+
 /*------------------------------- Main Body */
 
 .main-container {
@@ -65,14 +96,24 @@ color: #fff;
     min-height: 100vh;
 }
 
-/*------------------------------- Form Container */
+/*------------------------------- Add User */
+
+.adduser-container {
+margin: auto;
+margin-top: 40px;
+}
+
+.adduser-container h1 {
+color: #153244
+}
 
 .form-container {
-background-color: #D3D3D3;
+background-color: #153244;
 width: 400px;
 padding: 10px;
-margin: auto;
 border-radius: 10px;
+color: #fff;
+
 }
 
 .form {
@@ -121,7 +162,7 @@ margin: 20px;
     align-items: center;
     justify-content: space-between;
     height: 75px;
-    background-color: #007bff;
+    background-color: #153244;
     padding: 0 20px;
     color: white;
     position: sticky;

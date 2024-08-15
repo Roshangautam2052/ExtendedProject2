@@ -4,20 +4,21 @@
 @(userForm: Form[DataModel])(implicit request: RequestHeader, messages: Messages)
 
 @main("Add User"){
-
+<div class ="adduser-container">
 <h1 class="title">Create Database User</h1>
-<div class="form-container">
-<div class = "form">
-    @helper.form(action = routes.ApplicationController.createDatabaseUser()) {
-    @helper.CSRF.formField
-    @helper.inputText(userForm("userName"))
-    @helper.inputText(userForm("dateAccount"))
-    @helper.inputText(userForm("location"))
-    @helper.inputText(userForm("numberOfFollowers"))
-    @helper.inputText(userForm("numberFollowing"))
-    @helper.inputText(userForm("gitHubAccount"))
-    <input class="submitButton" type="submit" value="Submit">
-    }
-</div>
+    <div class="form-container">
+        <div class = "form">
+            @helper.form(action = routes.ApplicationController.createDatabaseUser()) {
+            @helper.CSRF.formField
+            @helper.inputText(userForm("userName"))
+            @helper.inputText(userForm("dateAccount"))
+            @helper.inputText(userForm("location"))
+            @helper.inputText(userForm("numberOfFollowers"))
+            @helper.inputText(userForm("numberFollowing"))
+            @helper.inputText(userForm("gitHubAccount"))
+            <input class="buttons" type="submit" value="Submit">
+            }
+        </div>
+    </div>
 </div>
 }
