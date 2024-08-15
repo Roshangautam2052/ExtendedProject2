@@ -111,4 +111,41 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
     }
   }
+
+  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
+    val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
+
+    connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {
+      case arr: JsArray =>
+
+        if (arr.value.isEmpty) {
+          Left(APIError.NotFoundError(404, s"This $repoName is empty"))
+        } else {
+
+          val contents = arr.value.map { item =>
+            val name = (item \ "name").as[String]
+            val format = (item \ "type").as[String]
+            val path = (item \ "path").as[String]
+
+          TopLevelModel(name, format, path)
+        }.toSeq
+        Right(contents)
+    }
+
+
+      case obj: JsObject =>
+        if ((obj \ "status").asOpt[String].contains("404")) {
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+        } else {
+          Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+        }
+
+      case _ =>
+        Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+    }
+  }
+
+
 }
