@@ -7,6 +7,7 @@ import models.{APIError, DataModel, FileContent, PublicRepoDetails, TopLevelMode
 import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.ZonedDateTime
+import java.util.Base64
 import javax.inject.Inject
 import scala.Right
 import scala.concurrent.{ExecutionContext, Future}
@@ -113,35 +114,29 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
     }
   }
-  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FileContent]] = {
+  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
-    }.subflatMap {
-      case arr: JsArray =>
+    }.subflatMap {json =>
+      json.asOpt[JsObject] match {
 
-        if (arr.value.isEmpty) {
-          Left(APIError.NotFoundError(404, s"This $path is empty"))
-        } else {
-
-          val contents = arr.value.map { item =>
-            val fileContent = (item \ "content").as[String]
-            val textDecoded = new String(java.util.Base64.getDecoder.decode(fileContent))
-
-            FileContent(textDecoded)
-          }.toSeq
-          Right(contents)
-
-        }
-      case obj: JsObject =>
-        if ((obj \ "status").asOpt[String].contains("404")) {
+        case Some(item) if (item \ "status").asOpt[String].contains("404") =>
           Left(APIError.NotFoundError(404, "User not found in Github"))
-        } else {
-          Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
-        }
 
-      case _ =>
-        Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+        case Some(item) =>
+          val file: String = (item \ "content").as[String]
+          val clean64 = file.replaceAll("\\s","")
+        val decodedFile = Base64.getDecoder.decode(clean64)
+          val textDecoded = new String(decodedFile, "UTF-8")
+          Right(textDecoded)
+
+        case None =>
+          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
+      }
     }
+
+
   }
+  //  val textDecoded = new String(java.util.Base64.getDecoder.decode(fileContent), "UTF-8")
 }
