@@ -128,7 +128,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubRepo(userName).value.map {
-      case Right(publicRepos) => Ok(views.html.displayuserRepos(Some(publicRepos)))
+      case Right(publicRepos) => Ok(views.html.displayUserRepos(Some(publicRepos)))
       case Left(error) => Status(error.httpResponseStatus)
     }
   }

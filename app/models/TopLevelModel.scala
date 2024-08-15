@@ -2,11 +2,11 @@ package models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class TopLeveModel(
+case class TopLevelModel(
                        name: String,
                        format: String,
                        )
 
-object TopLeveModel {
-  implicit val formats: OFormat[TopLeveModel] = Json.format[TopLeveModel]
+object TopLevelModel {
+  implicit val formats: OFormat[TopLevelModel] = Json.format[TopLevelModel]
 }

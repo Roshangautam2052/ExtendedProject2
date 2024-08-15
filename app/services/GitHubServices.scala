@@ -3,7 +3,7 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel, FileType, PublicRepoDetails, TopLeveModel}
+import models.{APIError, DataModel, PublicRepoDetails, TopLevelModel}
 import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.ZonedDateTime
@@ -55,7 +55,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         } else {
 
           val repos = arr.value.map { item =>
-            val userName = (item \ "login").as[String]
+            val userName = (item \"owner" \ "login").as[String]
             val name = (item \ "name").as[String]
             val language = (item \ "language").asOpt[String]
             val pushedAt = (item \ "pushed_at").as[String]
@@ -77,7 +77,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
-  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLeveModel]] = {
+  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents"
 
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
@@ -93,7 +93,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
 
-          TopLeveModel(name, format)
+          TopLevelModel(name, format)
         }.toSeq
         Right(contents)
     }
