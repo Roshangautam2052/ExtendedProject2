@@ -2,25 +2,29 @@
 @main("Display Public Repos") {
 
     @repos.map { repoSeq =>
-        @if(repoSeq.nonEmpty) {
-            <div class="public-repos-container">
+    @if(repoSeq.nonEmpty) {
+        <div class="title">
+            <h1>Repository Details</h1>
+        </div>
+        <div class="public-repos-container">
             @for(repo <- repoSeq) {
-                <div class="form-container">
-                    <p><strong>Name:</strong> @repo.name</p>
-                    <p><strong>Language:</strong> @repo.language</p>
-                    <p><strong>Last Modified:</strong> @repo.pushedAt</p>
-                    <button class="buttons"><a href="@routes.ApplicationController.getGitDirsAndFiles(repo.userName, repo.name)">Open Repo</a></button>
-                </div>
+            <div class="repo-form-container">
+                <p><strong>Name:</strong> @repo.name</p>
+                <p><strong>Language:</strong> @repo.language</p>
+                <p><strong>Last Modified:</strong> @repo.pushedAt</p>
+                <button class="repo-buttons"><a href="@routes.ApplicationController.getGitDirsAndFiles(repo.userName, repo.name)">Open Repository</a></button>
+            </div>
 
             }
-                <div class="btn-row">
-                    <button class="buttons">Go Back Not actioned</button>
-                </div>
             </div>
-        } else {
+            <div class="display-repo-btn">
+                <button class="buttons">Go Back Not actioned</button>
+            </div>
+                } else {
             <h1>No Public Repo's found</h1>
+            }
+            }.getOrElse {
+            <h1>No Public Repo's found</h1>
+            }
+        <img class="waving-robot2" src="@routes.Assets.versioned("images/waving-robot.png")" alt="robot waving"/>
         }
-    }.getOrElse {
-        <h1>No Public Repo's found</h1>
-    }
-}

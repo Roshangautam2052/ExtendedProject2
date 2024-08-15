@@ -7,7 +7,7 @@
 <div class ="adduser-container">
 <h1 class="title">Create Database User</h1>
     <div class="form-container">
-        <div class = "form">
+        <div class="form">
             @helper.form(action = routes.ApplicationController.createDatabaseUser()) {
             @helper.CSRF.formField
             @helper.inputText(userForm("userName"))
@@ -21,4 +21,5 @@
         </div>
     </div>
 </div>
+<img class="peace-robot" src="@routes.Assets.versioned("images/peace-robot.png")" alt="robot throwing peace signs"/>
 }

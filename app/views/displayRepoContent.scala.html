@@ -5,27 +5,41 @@
 
     @repoContents.map { repoContentsSeq =>
         @if(repoContentsSeq.nonEmpty) {
+            <div class="content-title">
+                <h1>Repository Files & Folders</h1>
+            </div>
             <div class="public-repos-container">
             @for(repoContents <- repoContentsSeq) {
                 <div class="form-container">
                     @if(repoContents.format == "file") {
-                    <p><a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContents.path)">@repoContents.path</a></p>
-                    <p></p>
+                    <p>
+                        <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContents.path)">
+                            <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon"">
+                            @repoContents.path
+                        </a>
+                    </p>
+                    <p>
                     } else {
+                    <p>
 
-                    <p><a href="@routes.ApplicationController.openGitDir(userName, repoName, repoContents.path)">@repoContents.name</a></p>
+                        <a href="@routes.ApplicationController.openGitDir(userName, repoName, repoContents.path)">
+                            <img class="icon" src="@routes.Assets.versioned("images/folder-icon.png")" alt="folder icon"">
+                            @repoContents.name
+                        </a>
+                    </p>
                     }
-                    <button class="buttons"> Open Repo? -Not Actioned</button>
                 </div>
             }
-                <div class="btn-row">
-                    <button class="buttons">Go Back Not actioned</button>
-                </div>
+
             </div>
+        <div class="display-repo-btn">
+            <button class="buttons">Go Back Not actioned!</button>
+        </div>
         } else {
             <h1>No Public Repo's found</h1>
         }
     }.getOrElse {
         <h1>No Public Repo's found</h1>
     }
+<img class="waving-robot" src="@routes.Assets.versioned("images/waving-robot.png")" alt="robot waving"/>
 }

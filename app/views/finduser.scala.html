@@ -2,7 +2,7 @@
 @main("Display User") {
 
     <div class="search-container">
-        <h1 class="title">Find User Profile</h1>
+        <h1 class="find-title">Find User Profile</h1>
 
         <form action="@routes.ApplicationController.readDatabaseOrAddFromGithub()" method="GET" class="form-inline">
             <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="userName">
@@ -42,7 +42,9 @@
             </div>
         </div>
     } else {
-        <h1>No user found.</h1>
+        @if(userForm.hasErrors || request.queryString.contains("userName")) {
+            <h2 class="not-found">No user found, try again.</h2>
+            }
     }
-
+<img class="thumbs-up-robot" src="@routes.Assets.versioned("images/thumbs-up-robot.png")" alt="robot giving thumbs up"/>
 }
