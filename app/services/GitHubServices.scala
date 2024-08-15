@@ -92,8 +92,9 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
           val contents = arr.value.map { item =>
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
+            val path = (item \ "path").as[String]
 
-          TopLevelModel(name, format)
+          TopLevelModel(name, format, path)
         }.toSeq
         Right(contents)
     }
