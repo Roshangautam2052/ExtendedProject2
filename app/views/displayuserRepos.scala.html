@@ -1,0 +1,27 @@
+@(repos: Option[Seq[PublicRepoDetails]])(implicit request: RequestHeader, messages: Messages)
+@main("Display Public Repos") {
+
+    @repos.map { repoSeq =>
+        @if(repoSeq.nonEmpty) {
+            <div class="public-repos-container">
+            @for(repo <- repoSeq) {
+                <div class="form-container">
+                    <p><strong>Name:</strong> @repo.name</p>
+                    <p><strong>Language:</strong> @repo.language</p>
+                    <p><strong>Last Modified:</strong> @repo.pushedAt</p>
+                    <button class="buttons"> Open Repo? -Not Actioned</button>
+
+                </div>
+
+            }
+                <div class="btn-row">
+                    <button class="buttons">Go Back Not actioned</button>
+                </div>
+            </div>
+        } else {
+            <h1>No Public Repo's found</h1>
+        }
+    }.getOrElse {
+        <h1>No Public Repo's found</h1>
+    }
+}
