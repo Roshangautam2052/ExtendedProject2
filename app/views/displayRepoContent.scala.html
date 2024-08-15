@@ -1,0 +1,27 @@
+@(repoContents: Option[Seq[TopLevelModel]])(implicit request: RequestHeader, messages: Messages)
+@main("Display Repo Contents") {
+
+    @repoContents.map { repoContentsSeq =>
+        @if(repoContentsSeq.nonEmpty) {
+            <div class="public-repos-container">
+            @for(repoContents <- repoContentsSeq) {
+                <div class="form-container">
+                    @if(repoContents.format == "file") {
+                    <p>@repoContents.name</p>
+                    } else {
+                    <p>@repoContents.name</p>
+                    }
+                    <button class="buttons"> Open Repo? -Not Actioned</button>
+                </div>
+            }
+                <div class="btn-row">
+                    <button class="buttons">Go Back Not actioned</button>
+                </div>
+            </div>
+        } else {
+            <h1>No Public Repo's found</h1>
+        }
+    }.getOrElse {
+        <h1>No Public Repo's found</h1>
+    }
+}

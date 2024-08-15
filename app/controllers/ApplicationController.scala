@@ -62,8 +62,6 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   /** --------------------------------------- Create Search Bar */
 
 
-
-
   def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     repoService.readUser(userName).map {
       case Right(user) => Ok(Json.toJson(user))
@@ -131,6 +129,15 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubRepo(userName).value.map {
       case Right(publicRepos) => Ok(views.html.displayuserRepos(Some(publicRepos)))
+      case Left(error) => Status(error.httpResponseStatus)
+    }
+  }
+
+  /**------------------------- Get Dirs & Folders */
+
+  def getGitDirsAndFiles(userName: String, repoName: String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitDirsAndFiles(userName, repoName).value.map {
+      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents)))
       case Left(error) => Status(error.httpResponseStatus)
     }
   }

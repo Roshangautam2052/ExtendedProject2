@@ -3,7 +3,7 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel, PublicRepoDetails}
+import models.{APIError, DataModel, FileType, PublicRepoDetails, TopLeveModel}
 import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
 
 import java.time.ZonedDateTime
@@ -55,14 +55,49 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         } else {
 
           val repos = arr.value.map { item =>
+            val userName = (item \ "login").as[String]
             val name = (item \ "name").as[String]
             val language = (item \ "language").asOpt[String]
             val pushedAt = (item \ "pushed_at").as[String]
 
-            PublicRepoDetails(name, language, pushedAt)
+            PublicRepoDetails(userName, name, language, pushedAt)
           }.toSeq
           Right(repos)
         }
+
+      case obj: JsObject =>
+        if ((obj \ "status").asOpt[String].contains("404")) {
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+        } else {
+          Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+        }
+
+      case _ =>
+        Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
+    }
+  }
+
+  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLeveModel]] = {
+    val url = s"https://api.github.com/repos/$userName/$repoName/contents"
+
+    connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {
+      case arr: JsArray =>
+
+        if (arr.value.isEmpty) {
+          Left(APIError.NotFoundError(404, s"This $repoName is empty"))
+        } else {
+
+          val contents = arr.value.map { item =>
+            val name = (item \ "name").as[String]
+            val format = (item \ "type").as[String]
+
+          TopLeveModel(name, format)
+        }.toSeq
+        Right(contents)
+    }
+
 
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
