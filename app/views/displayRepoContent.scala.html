@@ -13,11 +13,11 @@
         @if(repoContent.format == "file") {
         <p>
             <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContent.path)">
-                <button class="repo-buttons">
-                    Delete
-                </button>
                 <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
                 @repoContent.name
+                <button class="repo-buttons file-delete">
+                    Delete
+                </button>
             </a>
         </p>
         } else {
