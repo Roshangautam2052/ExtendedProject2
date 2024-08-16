@@ -50,8 +50,19 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
     Future.successful(Ok(views.html.createFileForm(userName, repoName,createForm)))
   }
 
-  def createFile(userName: String, repoName: String):Action[AnyContent] = Action.async { implicit request =>
-    ???
+  def createFile(userName: String, repo: String):Action[AnyContent] = Action.async { implicit request =>
+    createForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
+      formWithErrors => {
+        //here write what you want to do if the form has errors
+        api.Logger(s"Form submission errors: ${formWithErrors.errors}")
+        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+      },
+      formData => {
+        gitService.createFile(userName, repo, formData.fileName, formData).value.map {
+          case Right(create) => Created(Json.toJson(create))
+          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+        }
+      })
   }
 
 

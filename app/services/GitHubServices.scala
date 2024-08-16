@@ -3,7 +3,7 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel}
+import models.{APIError, CreateFileModel, DataModel, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel}
 import play.api.libs.json.{JsArray, JsObject, JsValue, Json, Reads}
 
 import java.time.ZonedDateTime
@@ -206,6 +206,30 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
+  def createFile(userName: String, repo: String, fileName: String, formData: CreateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+    val url = s"https://api.github.com/repos/$userName/$repo/contents/$fileName"
 
+    val body = Json.obj(
+      "message" -> formData.message,
+      "content" -> formData.content,
+      "fileName" -> formData.fileName
+    )
+
+    connector.create[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {json =>
+      json.asOpt[JsObject] match {
+
+        case Some(item) if (item \ "status").asOpt[String].contains("404") =>
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+
+        case Some(item) =>
+          Right(item.toString())
+
+        case None =>
+          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
+      }
+    }
+  }
 
 }

@@ -43,7 +43,7 @@ GET       /GitHub/repos/:owner/:repo/contents/:path/:fileName                   
 GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileName         controllers.GitHubRepoController.displayDeleteForm(userName, repoName, sha, path, fileName)
 
 GET         /GitHub/createFile/showForm/:userName/:repoName/                         controllers.GitHubRepoController.displayCreateFileForm(userName, repoName)
-GET         /GitHub/createFileController/showForm/:userName/:repoName/                       controllers.GitHubRepoController.createFile(userName, repoName)
+POST         /GitHub/createFileController/showForm/:userName/:repoName/                       controllers.GitHubRepoController.createFile(userName, repoName)
 
 
 

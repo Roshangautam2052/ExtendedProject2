@@ -37,7 +37,7 @@ class GitHubConnector @Inject()(ws: WSClient) {
 
     // Content type is set to Json
     val response = request
-    .withMethod("DELETE")
+    .withMethod("POST")
     .withBody(body)
     .execute()
 
@@ -51,6 +51,28 @@ class GitHubConnector @Inject()(ws: WSClient) {
             Left(APIError.BadAPIResponse(500, "Could not connect"))
         }
     }
+  }
 
+  def create[Response](url: String, body: JsValue)(implicit rds: Reads[Response], ec: ExecutionContext): EitherT[Future, APIError, Response] = {
+    val request = ws.url(url)
+      .withHttpHeaders(
+        "Content-Type" -> "application/json",  // Set the content type to JSON
+        "Authorization" -> s"Bearer $authToken" // Add the Authorization header with the token
+      )
+
+    // Send a POST request with the JSON body
+    val response = request
+      .post(body)
+
+    EitherT{
+      response.map {
+          result =>
+            Right(result.json.as[Response])
+        }
+        .recover {
+          case _ : WSResponse =>
+            Left(APIError.BadAPIResponse(500, "Could not connect"))
+        }
+    }
   }
 }
