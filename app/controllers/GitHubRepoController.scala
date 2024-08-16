@@ -46,11 +46,11 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
 
   /** ---------------------------------- Create File Form */
 
-  def displayCreateFileForm(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(views.html.createFileForm(userName, repoName, path, createForm)))
+  def displayCreateFileForm(userName: String, repoName: String): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.createFileForm(userName, repoName,createForm)))
   }
 
-  def createFile(userName: String, repoName: String, path: String):Action[AnyContent] = Action.async { implicit request =>
+  def createFile(userName: String, repoName: String):Action[AnyContent] = Action.async { implicit request =>
     ???
   }
 
