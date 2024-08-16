@@ -10,7 +10,7 @@
             <div class="form">
             @helper.form(action = routes.GitHubRepoController.deleteDirectoryOrFile(userName, repoName, path)) {
                 @helper.CSRF.formField
-                @helper.inputText(deleteForm("Commit message "))
+                @helper.inputText(deleteForm("message"))
                 @helper.inputText(deleteForm("sha"), Symbol("type") -> "hidden")
                 <input class="buttons" type="submit" value="Submit">
                 }

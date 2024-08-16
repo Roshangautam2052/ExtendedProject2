@@ -30,7 +30,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
-        Future.successful(Ok(   Json.toJson("error handling")))
+        Future.successful(Ok(Json.toJson(formData)))
         })
       }
 
