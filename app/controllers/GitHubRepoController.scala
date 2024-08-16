@@ -1,5 +1,6 @@
 package controllers
 
+import models.CreateFileModel.createForm
 import models.DataModel.userForm
 import models.DeleteModel
 import models.DeleteModel.deleteForm
@@ -16,6 +17,8 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
                                       val gitService: GitHubServices, val repoService: RepositoryServices)
                                      (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
+
+  /** ---------------------------------- Delete File */
 
   def displayDeleteForm(userName:String, repoName:String, sha:String, path:String, fileName: String ): Action[AnyContent] = Action.async { implicit request =>
     val filledForm = deleteForm.fill(DeleteModel("", sha))
@@ -41,7 +44,13 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
     ???
   }
 
-  def createDirectoryOrFile():Action[AnyContent] = Action.async { implicit request =>
+  /** ---------------------------------- Create File Form */
+
+  def displayCreateFileForm(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.createFileForm(userName, repoName, path, createForm)))
+  }
+
+  def createFile(userName: String, repoName: String, path: String):Action[AnyContent] = Action.async { implicit request =>
     ???
   }
 

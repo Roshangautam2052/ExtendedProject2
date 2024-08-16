@@ -204,8 +204,6 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
           Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
       }
     }
-
-
   }
 
 
