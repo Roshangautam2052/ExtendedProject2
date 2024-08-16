@@ -90,7 +90,8 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       case arr: JsArray =>
 
         if (arr.value.isEmpty) {
-          Left(APIError.NotFoundError(404, s"This $repoName is empty"))
+          val empty: Seq[TopLevelModel] = Seq()
+          Right(empty)
         } else {
 
           val contents = arr.value.map { item =>
