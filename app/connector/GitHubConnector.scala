@@ -37,7 +37,7 @@ class GitHubConnector @Inject()(ws: WSClient) {
 
     // Content type is set to Json
     val response = request
-    .withMethod("POST")
+    .withMethod("DELETE")
     .withBody(body)
     .execute()
 
@@ -62,7 +62,9 @@ class GitHubConnector @Inject()(ws: WSClient) {
 
     // Send a POST request with the JSON body
     val response = request
-      .post(body)
+      .withMethod("POST")
+      .withBody(body)
+      .execute()
 
     EitherT{
       response.map {
