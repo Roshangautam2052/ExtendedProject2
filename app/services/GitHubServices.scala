@@ -3,12 +3,13 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, DataModel, FileContent, PublicRepoDetails, TopLevelModel}
-import play.api.libs.json.{JsArray, JsObject, JsValue, Reads}
+import models.{APIError, DataModel, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel}
+import play.api.libs.json.{JsArray, JsObject, JsValue, Json, Reads}
 
 import java.time.ZonedDateTime
 import java.util.Base64
 import javax.inject.Inject
+import javax.print.attribute.standard.RequestingUserName
 import scala.Right
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -178,8 +179,34 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
 
   }
 
-  def deleteGitRepoFileAndDirectory()(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
-    ???
+  def deleteDirectoryOrFile(userName: String, repo: String, path: String, formData: DeleteModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+    val url = s"https://api.github.com/repos/$userName/$repo/contents/$path"
+
+    val body = Json.obj(
+      "message" -> formData.message,
+      "sha" -> formData.sha
+    )
+
+    connector.delete[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {json =>
+      json.asOpt[JsObject] match {
+
+        case Some(item) if (item \ "status").asOpt[String].contains("404") =>
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+
+        case Some(item) =>
+          Right(item.toString())
+
+          /** "{\"content\":null,\"commit\":{\"sha\":\"1841ae232f55cf092b06a18cb404e40aa26f0152\",\"node_id\":\"C_kwDOMkQgjtoAKDE4NDFhZTIzMmY1NWNmMDkyYjA2YTE4Y2I0MDRlNDBhYTI2ZjAxNTI\",\"url\":\"https://api.github.com/repos/GarysRobot/TestRepo/git/commits/1841ae232f55cf092b06a18cb404e40aa26f0152\",\"html_url\":\"https://github.com/GarysRobot/TestRepo/commit/1841ae232f55cf092b06a18cb404e40aa26f0152\",\"author\":{\"name\":\"GarysRobot\",\"email\":\"spennder@gmail.com\",\"date\":\"2024-08-16T13:25:38Z\"},\"committer\":{\"name\":\"GarysRobot\",\"email\":\"spennder@gmail.com\",\"date\":\"2024-08-16T13:25:38Z\"},\"tree\":{\"sha\":\"4b825dc642cb6eb9a060e54bf8d69288fbee4904\",\"url\":\"https://api.github.com/repos/GarysRobot/TestRepo/git/trees/4b825dc642cb6eb9a060e54bf8d69288fbee4904\"},\"message\":\"Delete\",\"parents\":[{\"sha\":\"fbbb6d162baebcea95dfb2cec52d74efe2b8cf6c\",\"url\":\"https://api.github.com/repos/GarysRobot/TestRepo/git/commits/fbbb6d162baebcea95dfb2cec52d74efe2b8cf6c\",\"html_url\":\"https://github.com/GarysRobot/TestRepo/commit/fbbb6d162baebcea95dfb2cec52d74efe2b8cf6c\"}],\"verification\":{\"verified\":false,\"reason\":\"unsigned\",\"signature\":null,\"payload\":null}}}" */
+        case None =>
+          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
+      }
+    }
+
+
   }
+
+
 
 }

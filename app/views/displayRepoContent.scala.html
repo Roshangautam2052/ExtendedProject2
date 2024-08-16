@@ -14,9 +14,9 @@
                     @if(repoContents.format == "file") {
                     <p>
                         <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContents.path)">
-                            <button class="repo-buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName,repoName,repoContents.sha, repoContents.path)">Delete</a></button>
+                            <button class="repo-buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName,repoName,repoContents.sha, repoContents.path, repoContents.name)">Delete</a></button>
                             <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
-                            @repoContents.path
+                            @repoContents.name
                         </a>
                     </p>
                     <p>

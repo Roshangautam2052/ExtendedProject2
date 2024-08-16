@@ -1,9 +1,10 @@
 package connector
 
 
+import AuthToken.AuthToken.authToken
 import cats.data.EitherT
 import models.APIError
-import play.api.libs.json.Reads
+import play.api.libs.json.{JsObject, JsValue, Reads}
 import play.api.libs.ws.{WSClient, WSResponse}
 
 import javax.inject.Inject
@@ -27,9 +28,19 @@ class GitHubConnector @Inject()(ws: WSClient) {
 
   }
 
-  def delete[Response](url: String)(implicit rds: Reads[Response], ec: ExecutionContext): EitherT[Future, APIError, Response] = {
+  def delete[Response](url: String, body: JsValue)(implicit rds: Reads[Response], ec: ExecutionContext): EitherT[Future, APIError, Response] = {
     val request = ws.url(url)
-    val response = request.get()
+      .withHttpHeaders(
+      "Content-Type" -> "application/json", // Set the content type to JSON
+      "Authorization" -> s"Bearer $authToken" // Add the Authorization header with the token
+    )
+
+    // Content type is set to Json
+    val response = request
+    .withMethod("DELETE")
+    .withBody(body)
+    .execute()
+
     EitherT{
       response.map {
           result =>
