@@ -27,7 +27,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  /** --------------------------------------- Create Form */
+  /** ---------------------------------------Display Views------------*/
 
   def accessToken(implicit request: Request[_]) = {
     CSRF.getToken

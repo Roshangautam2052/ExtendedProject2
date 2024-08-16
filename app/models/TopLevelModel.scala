@@ -4,6 +4,7 @@ import play.api.libs.json.{Json, OFormat}
 
 case class TopLevelModel(
                           name: String,
+                          sha: String,
                           format: String,
                           path: String
                         )

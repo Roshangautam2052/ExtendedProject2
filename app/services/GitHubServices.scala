@@ -96,8 +96,9 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
             val path = (item \ "path").as[String]
+            val sha = (item \ "sha"). as[String]
 
-          TopLevelModel(name, format, path)
+          TopLevelModel(name,sha, format, path)
         }.toSeq
         Right(contents)
     }
@@ -132,8 +133,9 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
             val path = (item \ "path").as[String]
+            val sha = (item \ "sha"). as[String]
 
-          TopLevelModel(name, format, path)
+          TopLevelModel(name,sha, format, path)
         }.toSeq
         Right(contents)
     }
@@ -150,8 +152,6 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
     }
   }
-
-
 
   def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
@@ -177,5 +177,9 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
 
 
   }
-  //  val textDecoded = new String(java.util.Base64.getDecoder.decode(fileContent), "UTF-8")
+
+  def deleteGitRepoFileAndDirectory()(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+    ???
+  }
+
 }

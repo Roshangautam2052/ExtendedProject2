@@ -1,0 +1,21 @@
+@import models.DataModel
+@import helper._
+
+@(userName:String, repoName:String, path:String, deleteForm: Form[DeleteModel])(implicit request: RequestHeader, messages: Messages)
+
+@main("Delete"){
+    <div class ="adduser-container">
+        <h1 class="title">Delete</h1>
+        <div class="form-container">
+            <div class="form">
+            @helper.form(action = routes.GitHubRepoController.deleteDirectoryOrFile(userName, repoName, path)) {
+                @helper.CSRF.formField
+                @helper.inputText(deleteForm("Commit message "))
+                @helper.inputText(deleteForm("sha"), Symbol("type") -> "hidden")
+                <input class="buttons" type="submit" value="Submit">
+                }
+            </div>
+        </div>
+    </div>
+    <img class="peace-robot" src="@routes.Assets.versioned("images/peace-robot.png")" alt="robot throwing peace signs"/>
+}
