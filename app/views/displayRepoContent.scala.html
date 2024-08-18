@@ -5,7 +5,7 @@
     <h1>Repository Files & Folders</h1>
 </div>
 <div class="public-repos-container">
-
+    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName)">Add File</a></button>
     @repoContents.map { repoContentsSeq =>
     @if(repoContentsSeq.nonEmpty) {
     @for(repoContent <- repoContentsSeq) {

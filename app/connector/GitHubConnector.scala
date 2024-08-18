@@ -62,7 +62,7 @@ class GitHubConnector @Inject()(ws: WSClient) {
 
     // Send a POST request with the JSON body
     val response = request
-      .withMethod("POST")
+      .withMethod("PUT")
       .withBody(body)
       .execute()
 

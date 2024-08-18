@@ -3,14 +3,12 @@ package services
 import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
-import models.{APIError, CreateFileModel, DataModel, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel}
-import play.api.libs.json.{JsArray, JsObject, JsValue, Json, Reads}
+import models._
+import play.api.libs.json._
 
 import java.time.ZonedDateTime
 import java.util.Base64
 import javax.inject.Inject
-import javax.print.attribute.standard.RequestingUserName
-import scala.Right
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -118,7 +116,6 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
-
   def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
 
@@ -130,7 +127,6 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         if (arr.value.isEmpty) {
           Left(APIError.NotFoundError(404, s"This $repoName is empty"))
         } else {
-
           val contents = arr.value.map { item =>
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
@@ -199,7 +195,6 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         case Some(item) =>
           Right(item.toString())
 
-          /** "{\"content\":null,\"commit\":{\"sha\":\"1841ae232f55cf092b06a18cb404e40aa26f0152\",\"node_id\":\"C_kwDOMkQgjtoAKDE4NDFhZTIzMmY1NWNmMDkyYjA2YTE4Y2I0MDRlNDBhYTI2ZjAxNTI\",\"url\":\"https://api.github.com/repos/GarysRobot/TestRepo/git/commits/1841ae232f55cf092b06a18cb404e40aa26f0152\",\"html_url\":\"https://github.com/GarysRobot/TestRepo/commit/1841ae232f55cf092b06a18cb404e40aa26f0152\",\"author\":{\"name\":\"GarysRobot\",\"email\":\"spennder@gmail.com\",\"date\":\"2024-08-16T13:25:38Z\"},\"committer\":{\"name\":\"GarysRobot\",\"email\":\"spennder@gmail.com\",\"date\":\"2024-08-16T13:25:38Z\"},\"tree\":{\"sha\":\"4b825dc642cb6eb9a060e54bf8d69288fbee4904\",\"url\":\"https://api.github.com/repos/GarysRobot/TestRepo/git/trees/4b825dc642cb6eb9a060e54bf8d69288fbee4904\"},\"message\":\"Delete\",\"parents\":[{\"sha\":\"fbbb6d162baebcea95dfb2cec52d74efe2b8cf6c\",\"url\":\"https://api.github.com/repos/GarysRobot/TestRepo/git/commits/fbbb6d162baebcea95dfb2cec52d74efe2b8cf6c\",\"html_url\":\"https://github.com/GarysRobot/TestRepo/commit/fbbb6d162baebcea95dfb2cec52d74efe2b8cf6c\"}],\"verification\":{\"verified\":false,\"reason\":\"unsigned\",\"signature\":null,\"payload\":null}}}" */
         case None =>
           Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
       }
@@ -208,10 +203,10 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
 
   def createFile(userName: String, repo: String, fileName: String, formData: CreateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
     val url = s"https://api.github.com/repos/$userName/$repo/contents/$fileName"
-
+    val encodedFormContent = Base64.getEncoder.encodeToString(formData.content.getBytes)
     val body = Json.obj(
       "message" -> formData.message,
-      "content" -> formData.content,
+      "content" -> encodedFormContent,
       "fileName" -> formData.fileName
     )
 
