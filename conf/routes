@@ -4,6 +4,7 @@
 # ~~~~
 
 # An example controller showing a sample home page
+
 GET           /                                                                            controllers.HomeController.index
 
 # Map static resources from the /public folder to the /assets URL path
@@ -18,10 +19,14 @@ POST          /api/create/                                                      
 DELETE        /api/delete/:userName                                                        controllers.ApplicationController.deleteDatabaseUser(userName)
 
 PATCH         /api/updateUser/:userName                                                    controllers.ApplicationController.updateDatabaseUser(userName)
+=======
+GET           /                                                             controllers.HomeController.index
+
 
 # Demo Routes
 
 #GET         /githubDemo/:userName                                                          controllers.ApplicationController.getGitHubUser(userName)
+
 
 GET           /apiDemo/:userName                                                           controllers.ApplicationController.readDataBaseUser(userName)
 
@@ -44,7 +49,6 @@ GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileN
 
 GET           /GitHub/createFile/showForm/:userName/:repoName/                             controllers.GitHubRepoController.displayCreateFileForm(userName, repoName, path:Option[String])
 POST          /GitHub/createFileController/showForm/:userName/:repoName/                   controllers.GitHubRepoController.createFile(userName, repoName, path:Option[String])
-
 
 
 

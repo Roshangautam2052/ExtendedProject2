@@ -51,12 +51,14 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   }
 
   def createFile(userName: String, repo: String, path:Option[String]):Action[AnyContent] = Action.async { implicit request =>
+
     createForm.bindFromRequest().fold(
       formWithErrors => {
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
+
         gitService.createFile(userName, repo, formData.fileName, formData, path).value.map {
           case Right(content) => Created(views.html.viewPageContent("Page Created Successfully"))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
