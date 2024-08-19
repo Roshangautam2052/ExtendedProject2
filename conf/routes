@@ -4,40 +4,46 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET           /                             controllers.HomeController.index
+GET           /                                                             controllers.HomeController.index
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /assets/*file                 controllers.Assets.versioned(path="/public", file: Asset)
+GET           /assets/*file                                                 controllers.Assets.versioned(path="/public", file: Asset)
 
-GET          /api/                controllers.ApplicationController.readDatabaseOrAddFromGithub()
+GET           /api/                                                         controllers.ApplicationController.readDatabaseOrAddFromGithub()
 
 
 # Database users
-POST          /api/create/                  controllers.ApplicationController.createDatabaseUser()
+POST          /api/create/                                                  controllers.ApplicationController.createDatabaseUser()
 
-DELETE        /api/delete/:userName         controllers.ApplicationController.deleteDatabaseUser(userName)
+DELETE        /api/delete/:userName                                         controllers.ApplicationController.deleteDatabaseUser(userName)
 
-PATCH       /api/updateUser/:userName                  controllers.ApplicationController.updateDatabaseUser(userName)
+PATCH         /api/updateUser/:userName                                     controllers.ApplicationController.updateDatabaseUser(userName)
 
 # Demo Routes
 
-#GET         /githubDemo/:userName               controllers.ApplicationController.getGitHubUser(userName)
+#GET         /githubDemo/:userName                                                          controllers.ApplicationController.getGitHubUser(userName)
 
-GET         /apiDemo/:userName                  controllers.ApplicationController.readDataBaseUser(userName)
+GET           /apiDemo/:userName                                                            controllers.ApplicationController.readDataBaseUser(userName)
 
-GET     /addUser/form     controllers.ApplicationController.displayForm()
-#POST     /addUser/form     controllers.ApplicationController.createDatabaseUserForm()
+GET           /addUser/form                                                                 controllers.ApplicationController.displayForm()
+#POST     /addUser/form                                                                     controllers.ApplicationController.createDatabaseUserForm()
 
-GET     /findUser             controllers.ApplicationController.findUser()
-
-
-GET /Github/repo/:userName          controllers.ApplicationController.getGitHubRepos(userName)
-GET /Github/repo/content/:userName/:repoName        controllers.ApplicationController.getGitDirsAndFiles(userName, repoName)
+GET           /findUser                                                                     controllers.ApplicationController.findUser()
 
 
-GET /Github/repo/dir/:userName/:repoName/:path      controllers.ApplicationController.openGitDir(userName, repoName, path)
+GET           /Github/repo/:userName                                                        controllers.ApplicationController.getGitHubRepos(userName)
+GET           /Github/repo/content/:userName/:repoName                                      controllers.ApplicationController.getGitDirsAndFiles(userName, repoName)
 
-GET /Github/repo/content/:userName/:repoName/:path       controllers.ApplicationController.getGitRepoFileContent(userName, repoName, path)
+
+GET           /Github/repo/dir/:userName/:repoName/:path                                    controllers.ApplicationController.openGitDir(userName, repoName, path)
+
+GET           /Github/repo/content/:userName/:repoName/:path                                controllers.ApplicationController.getGitRepoFileContent(userName, repoName, path)
+
+GET       /GitHub/repos/:owner/:repo/contents/:path/:fileName                               controllers.GitHubRepoController.deleteDirectoryOrFile(owner, repo, path, fileName)
+GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileName         controllers.GitHubRepoController.displayDeleteForm(userName, repoName, sha, path, fileName)
+
+GET         /GitHub/createFile/showForm/:userName/:repoName/                         controllers.GitHubRepoController.displayCreateFileForm(userName, repoName)
+POST         /GitHub/createFileController/showForm/:userName/:repoName/                       controllers.GitHubRepoController.createFile(userName, repoName)
 
 
 

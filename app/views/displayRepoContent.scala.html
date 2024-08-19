@@ -1,45 +1,52 @@
-
 @(repoContents: Option[Seq[TopLevelModel]], userName: String, repoName: String)(implicit request: RequestHeader, messages: Messages)
 
 @main("Display Repo Contents") {
-
-    @repoContents.map { repoContentsSeq =>
-        @if(repoContentsSeq.nonEmpty) {
-            <div class="content-title">
-                <h1>Repository Files & Folders</h1>
-            </div>
-            <div class="public-repos-container">
-            @for(repoContents <- repoContentsSeq) {
-                <div class="form-container">
-                    @if(repoContents.format == "file") {
-                    <p>
-                        <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContents.path)">
-                            <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon"">
-                            @repoContents.path
-                        </a>
-                    </p>
-                    <p>
-                    } else {
-                    <p>
-
-                        <a href="@routes.ApplicationController.openGitDir(userName, repoName, repoContents.path)">
-                            <img class="icon" src="@routes.Assets.versioned("images/folder-icon.png")" alt="folder icon"">
-                            @repoContents.name
-                        </a>
-                    </p>
-                    }
-                </div>
-            }
-
-            </div>
-        <div class="display-repo-btn">
-            <button class="buttons">Go Back Not actioned!</button>
-        </div>
-        } else {
-            <h1>No Public Repo's found</h1>
-        }
-    }.getOrElse {
-        <h1>No Public Repo's found</h1>
+<div class="content-title">
+    <h1>Repository Files & Folders</h1>
+</div>
+<div class="public-repos-container">
+    @if(userName.equals("GarysRobot")){
+        <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName)">Add File</a></button>
     }
+    @repoContents.map { repoContentsSeq =>
+    @if(repoContentsSeq.nonEmpty) {
+    @for(repoContent <- repoContentsSeq) {
+    <div class="form-container">
+        @if(repoContent.format == "file") {
+        <p>
+            <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContent.path)">
+                <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
+                @repoContent.name
+                @if(userName.equals("GarysRobot")){
+                    <button class="buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName, repoName, repoContent.sha,
+                        repoContent.path, repoName)">Delete</a></button>
+                }
+            </a>
+        </p>
+        } else {
+        <p>
+            <a href="@routes.ApplicationController.openGitDir(userName, repoName, repoContent.path)">
+                <img class="icon" src="@routes.Assets.versioned("images/folder-icon.png")" alt="folder icon">
+                @repoContent.name
+            </a>
+        </p>
+        }
+    </div>
+    }
+    } else {
+    <h1> This repository is empty.</h1>
+    }
+    }.getOrElse {
+    <h1> This repository is empty.</h1>
+
+    }
+
+</div>
+
+<div class="display-repo-btn">
+    <button class="buttons">Go Back Not actioned!</button>
+</div>
+
 <img class="waving-robot" src="@routes.Assets.versioned("images/file-robot.png")" alt="robot waving"/>
 }
+
