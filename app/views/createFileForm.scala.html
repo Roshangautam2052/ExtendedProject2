@@ -1,7 +1,7 @@
 @import models.DataModel
 @import helper._
 
-@(userName:String, repoName:String,  createForm: Form[CreateFileModel])(implicit request: RequestHeader, messages: Messages)
+@(userName:String, repoName:String,  createForm: Form[CreateFileModel], path:Option[String]= None)(implicit request: RequestHeader, messages: Messages)
 
 @main("Create File"){
 <div class ="adduser-container">
@@ -9,7 +9,7 @@
     <div class="form-container">
         <p>Create New File</p>
         <div class="form">
-            @helper.form(action = routes.GitHubRepoController.createFile(userName, repoName)) {
+            @helper.form(action = routes.GitHubRepoController.createFile(userName, repoName, path)) {
             @helper.CSRF.formField
             @helper.inputText(createForm("message"))
             @helper.inputText(createForm("content"))

@@ -201,8 +201,12 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
-  def createFile(userName: String, repo: String, fileName: String, formData: CreateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
-    val url = s"https://api.github.com/repos/$userName/$repo/contents/$fileName"
+  def createFile(userName: String, repo: String, fileName: String, formData: CreateFileModel, path:Option[String])(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+    val url = path match {
+      case Some(path) => s"https://api.github.com/repos/$userName/$repo/contents/$path/$fileName"
+      case None => s"https://api.github.com/repos/$userName/$repo/contents/$fileName"
+    }
+
     val encodedFormContent = Base64.getEncoder.encodeToString(formData.content.getBytes)
     val body = Json.obj(
       "message" -> formData.message,
