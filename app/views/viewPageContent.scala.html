@@ -1,7 +1,24 @@
-@(fileContent: String)(implicit request: RequestHeader, messages: Messages)
+@import helper._
+@(fileContent: Form[FileContent], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
     <div class="file Content">
-        <pre>@fileContent</pre>
+        <pre>@fileContent("content").value</pre>
+        <div class ="editContent-container">
+            <h1 class="title">Edit File</h1>
+            <div class="edit-form-container">
+                <div class="edit-form">
+                    @helper.form(action = routes.GitHubRepoController.displayEditContent(userName, repoName, path)) {
+
+                    @helper.CSRF.formField
+                    <input type="hidden" name="content" value="@{fileContent(" content ").value}" />
+                    <input type="hidden" name="sha" value="@sha" />
+                    <input type="hidden" name="path" value="@path" />
+                    <input class="buttons" type="submit" value="edit">
+                    }
+                </div>
+            </div>
+        </div>
     </div>
+
 }

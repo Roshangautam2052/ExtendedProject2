@@ -309,6 +309,21 @@ height: 50px;
 width: auto;
 }
 
+/*------------------------------- Edit Pages */
+
+.edit-form input[type="text"] {
+color: #fff;
+}
+
+.edit-form .required {
+display: none;
+}
+
+.edit-hidden {
+display: none;
+}
+
+
 /*------------------------------- Footer */
 
 .footer {

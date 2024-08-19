@@ -2,8 +2,9 @@ package controllers
 
 import cats.conversions.all.autoConvertProfunctorVariance
 import models.DataModel.userForm
+import models.FileContent.editForm
 import models.UserSearchParameter.userSearchForm
-import models.{APIError, DataModel, UserSearchParameter}
+import models.{APIError, DataModel, FileContent, UserSearchParameter}
 import play.api
 import play.api.Logger
 import play.api.data.Form
@@ -144,7 +145,9 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   def getGitRepoFileContent(userName:String, repoName:String, path:String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitRepoFileContent(userName,repoName, path ).value.map {
-      case Right(contents) => Ok(views.html.viewPageContent(contents))
+      case Right(contents) =>
+      val filledForm = editForm.fill(FileContent(contents.content, contents.sha, contents.path))
+        Ok(views.html.viewPageContent(filledForm, userName, repoName, path))
       case Left(error) => Status(error.httpResponseStatus)
     }
   }

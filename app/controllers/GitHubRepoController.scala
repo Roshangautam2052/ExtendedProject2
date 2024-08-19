@@ -4,6 +4,7 @@ import models.CreateFileModel.createForm
 import models.DataModel.userForm
 import models.DeleteModel
 import models.DeleteModel.deleteForm
+import models.FileContent.editForm
 import play.api
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
@@ -40,14 +41,10 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       })
       }
 
-  def updateDirectoryOrFile():Action[AnyContent] = Action.async { implicit request =>
-    ???
-  }
-
   /** ---------------------------------- Create File Form */
 
   def displayCreateFileForm(userName: String, repoName: String, path:Option[String]): Action[AnyContent] = Action.async { implicit request =>
-    Future.successful(Ok(views.html.createFileForm(userName, repoName,createForm, path)))
+    Future.successful(Ok(views.html.createFileForm(userName, repoName, createForm, path)))
   }
 
   def createFile(userName: String, repo: String, path:Option[String]):Action[AnyContent] = Action.async { implicit request =>
@@ -60,12 +57,28 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formData => {
 
         gitService.createFile(userName, repo, formData.fileName, formData, path).value.map {
-          case Right(content) => Created(views.html.viewPageContent("Page Created Successfully"))
+          case Right(content) => Created(Json.toJson("success gary!"))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       })
   }
 
+  /** ---------------------------------- Update File Form */
 
+  def editContent(userName: String, repoName: String, path: String):Action[AnyContent] = Action.async { implicit request =>
+    ???
+  }
+
+  def displayEditContent(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
+    editForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
+      formWithErrors => {
+        //here write what you want to do if the form has errors
+        api.Logger(s"Form submission errors: ${formWithErrors.errors}")
+        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+      },
+      formData => {
+          Future.successful(Ok(Json.toJson(formData)))
+        })
+  }
 }
 

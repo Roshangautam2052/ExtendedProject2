@@ -151,7 +151,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
-  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
+  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, FileContent] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
@@ -164,9 +164,11 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         case Some(item) =>
           val file: String = (item \ "content").as[String]
           val clean64 = file.replaceAll("\\s","")
+          val path = (item \ "path").as[String]
+          val sha = (item \ "sha"). as[String]
         val decodedFile = Base64.getDecoder.decode(clean64)
           val textDecoded = new String(decodedFile, "UTF-8")
-          Right(textDecoded)
+          Right(FileContent(textDecoded, sha, path))
 
         case None =>
           Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
