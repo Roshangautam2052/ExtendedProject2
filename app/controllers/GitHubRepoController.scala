@@ -58,7 +58,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       },
       formData => {
         gitService.createFile(userName, repo, formData.fileName, formData).value.map {
-          case Right(content) => Created(views.html.viewPageContent(content))
+          case Right(content) => Created(views.html.viewPageContent("Page Created Successfully"))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       })

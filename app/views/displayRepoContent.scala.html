@@ -5,7 +5,9 @@
     <h1>Repository Files & Folders</h1>
 </div>
 <div class="public-repos-container">
-    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName)">Add File</a></button>
+    @if(userName.equals("GarysRobot")){
+        <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName)">Add File</a></button>
+    }
     @repoContents.map { repoContentsSeq =>
     @if(repoContentsSeq.nonEmpty) {
     @for(repoContent <- repoContentsSeq) {
@@ -15,9 +17,10 @@
             <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContent.path)">
                 <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
                 @repoContent.name
-                <button class="repo-buttons file-delete">
-                    Delete
-                </button>
+                @if(userName.equals("GarysRobot")){
+                    <button class="buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName, repoName, repoContent.sha,
+                        repoContent.path, repoName)">Delete</a></button>
+                }
             </a>
         </p>
         } else {
@@ -31,12 +34,11 @@
     </div>
     }
     } else {
-    <h1>Empty Repository</h1>
-    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName)">Add File</a></button>
+    <h1> This repository is empty.</h1>
     }
     }.getOrElse {
-    <h1>Empty Repository</h1>
-    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName)">Add File</a></button>
+    <h1> This repository is empty.</h1>
+
     }
 
 </div>
