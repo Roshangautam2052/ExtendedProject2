@@ -19,7 +19,6 @@ POST          /api/create/                                                      
 DELETE        /api/delete/:userName                                                        controllers.ApplicationController.deleteDatabaseUser(userName)
 
 PATCH         /api/updateUser/:userName                                                    controllers.ApplicationController.updateDatabaseUser(userName)
-=======
 GET           /                                                             controllers.HomeController.index
 
 
