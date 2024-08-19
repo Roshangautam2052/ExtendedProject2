@@ -10,16 +10,38 @@
         <div class="form">
             @helper.form(action = routes.ApplicationController.createDatabaseUserForm()) {
             @helper.CSRF.formField
-            @helper.inputText(userForm("userName"))
-            @helper.inputText(userForm("dateAccount"))
-            @helper.inputText(userForm("location"))
-            @helper.inputText(userForm("numberOfFollowers"))
-            @helper.inputText(userForm("numberFollowing"))
-            @helper.inputText(userForm("gitHubAccount"))
-            <input class="buttons" type="submit" value="Submit">
+
+            <div class="field-cont">
+                <div class="input-fields">
+                    <span>User Name:</span>
+                    @helper.inputText(userForm("userName"), Symbol("placeholder") -> "Github user name")
+                </div>
+                <div class="input-fields">
+                    <span>Account Creation:</span>
+                    @helper.inputText(userForm("dateAccount"), Symbol("placeholder") -> "Date ('yyyy-mm-dd')")
+                </div>
+                <div class="input-fields">
+                    <span>Location:</span>
+                    @helper.inputText(userForm("location"), Symbol("placeholder") -> "Tooting, London")
+                </div>
+                <div class="input-fields">
+                    <span>No. of Followers:</span>
+                    @helper.inputText(userForm("numberOfFollowers"), Symbol("placeholder") -> "0")
+                </div>
+                <div class="input-fields">
+                <span>No. Following:</span>
+                @helper.inputText(userForm("numberFollowing"), Symbol("placeholder") -> "0")
+                </div>
+                <div class="input-fields">
+                <span>GitHub Account:</span>
+                @helper.inputText(userForm("gitHubAccount"), Symbol("placeholder") -> "Yes/No")
+                </div>
+            </div>
+
+                <input class="buttons crt-btn" type="submit" value="Submit">
             }
         </div>
     </div>
 </div>
-<img class="peace-robot" src="@routes.Assets.versioned("images/peace-robot.png")" alt="robot throwing peace signs"/>
+<img class="builder-robot" src="@routes.Assets.versioned("images/builder-robot.png")" alt="builder robot"/>
 }
