@@ -1,5 +1,5 @@
 @import helper._
-@(fileContent: Form[FileContent], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
+@(fileContent: Form[UpdateFileModel], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
 <div class="file Content">
@@ -10,9 +10,26 @@
             <div class="form">
                 @helper.form(action = routes.GitHubRepoController.editContent(userName, repoName, path)) {
 
+                <div>
+                    <p>File Name:</p>
+                    @helper.textarea(fileContent("path"), Symbol("required") -> "false" , Symbol("_label") -> "")
+                </div>
+
+
+                <div>
+                    <p>File Content:</p>
+                    @helper.textarea(fileContent("content"), Symbol("required") -> "false" , Symbol("_label") -> "", Symbol("rows")  -> 10, Symbol("cols") -> 50)
+                </div>
+
+                <div>
+                    <p>Commit Message:</p>
+                    @helper.textarea(fileContent("message"), Symbol("required") -> "false" , Symbol("_label") -> "")
+                </div>
+
                 @helper.CSRF.formField
-                @helper.inputText(fileContent("content"))
-                @helper.inputText(fileContent("sha"))
+                <input type="hidden" name="sha" value='@fileContent("sha").value.getOrElse("")' />
+
+
                 <input class="buttons" type="submit" value="Submit">
                 }
             </div>

@@ -2,9 +2,10 @@ package controllers
 
 import models.CreateFileModel.createForm
 import models.DataModel.userForm
-import models.DeleteModel
+import models.{DeleteModel, UpdateFileModel}
 import models.DeleteModel.deleteForm
 import models.FileContent.editForm
+import models.UpdateFileModel.updateForm
 import play.api
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
@@ -66,7 +67,16 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   /** ---------------------------------- Update File Form */
 
   def editContent(userName: String, repoName: String, path: String):Action[AnyContent] = Action.async { implicit request =>
-    ???
+    updateForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
+      formWithErrors => {
+        //here write what you want to do if the form has errors
+        api.Logger(s"Form submission errors: ${formWithErrors.errors}")
+        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+      },
+      formData => {
+        Future.successful(Ok(Json.toJson(s"FormData: $formData #### Params:$userName, $repoName, $path")))
+
+      })
   }
 
   def displayEditContent(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
@@ -77,8 +87,11 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
-          Future.successful(Ok(Json.toJson(formData)))
-        })
+
+        val filledForm = updateForm.fill(UpdateFileModel("", formData.content, formData.sha, formData.path))
+        Future.successful(Ok(views.html.updateFileContent(filledForm, userName, repoName, path)))
+
+      })
   }
 }
 
