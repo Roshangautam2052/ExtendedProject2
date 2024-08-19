@@ -233,4 +233,43 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
+  def editContent(userName: String, repoName: String, path: String, formData: UpdateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+
+
+    val url =  s"https://api.github.com/repos/$userName/$repoName/contents/${formData.path}"
+
+    val encodedFormContent = Base64.getEncoder.encodeToString(formData.content.getBytes)
+
+    val body = Json.obj(
+      "message" -> formData.message,
+      "content" -> encodedFormContent,
+      "sha" -> formData.sha
+    )
+
+    connector.create[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
+      case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
+    }.subflatMap {json =>
+      json.asOpt[JsObject] match {
+
+        case Some(item) if (item \ "status").asOpt[String].contains("404") =>
+          Left(APIError.NotFoundError(404, "User not found in Github"))
+
+        case Some(item) =>
+          val result = if(path != formData.path) {
+            val deleteModel = DeleteModel(message = s"Delete Duplication ${formData.message}", sha = formData.sha)
+            deleteDirectoryOrFile(userName, repoName, path, deleteModel)
+          }
+
+          result match {
+            case Right(value) => Right(item.toString())
+            case Left(error) => Left(APIError.BadAPIResponse(500, s"$error"))
+          }
+
+
+        case None =>
+          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
+      }
+    }
+  }
+
 }
