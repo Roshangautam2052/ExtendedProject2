@@ -1,15 +1,11 @@
 package controllers
 
-import cats.conversions.all.autoConvertProfunctorVariance
 import models.DataModel.userForm
-import models.FileContent.editForm
 import models.UserSearchParameter.userSearchForm
-import models.{APIError, DataModel, FileContent, UserSearchParameter}
+import models.{DataModel, UserSearchParameter}
 import play.api
-import play.api.Logger
-import play.api.data.Form
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
+import play.api.mvc._
 import play.filters.csrf.CSRF
 import services.{GitHubServices, RepositoryServices}
 
@@ -19,31 +15,24 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ApplicationController @Inject()(val controllerComponents: ControllerComponents,
                                       val gitService: GitHubServices, val repoService: RepositoryServices)
-                                     (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport{
+                                     (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
-  def getGitHubUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
-    gitService.getGitHubUser(userName).value.map {
-      case Right(dataModel) => Ok(Json.toJson(dataModel))
-      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
-    }
-  }
-
-  /** ---------------------------------------Display Views------------*/
+  /** ---------------------------------------Display Views------------ */
 
   def accessToken(implicit request: Request[_]) = {
     CSRF.getToken
   }
 
-    def displayForm(): Action[AnyContent] = Action.async { implicit request =>
-      Future.successful(Ok(views.html.adduser(userForm)))
-    }
+  def displayForm(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.adduser(userForm)))
+  }
 
 
-    def findUser(): Action[AnyContent] = Action.async { implicit request =>
-     Future.successful(Ok(views.html.finduser(userSearchForm, None)))
-    }
+  def findUser(): Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(views.html.finduser(userSearchForm, None)))
+  }
 
-  def createDatabaseUserForm(): Action[AnyContent] =  Action.async {implicit request =>
+  def createDatabaseUserForm(): Action[AnyContent] = Action.async { implicit request =>
     accessToken //call the accessToken method
     userForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
       formWithErrors => {
@@ -52,10 +41,10 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
-            repoService.createUser(formData).map {
-              case Right(createdUser) => Created(Json.toJson(createdUser))
-              case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
-            }
+        repoService.createUser(formData).map {
+          case Right(createdUser) => Created(Json.toJson(createdUser))
+          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+        }
       }
     )
   }
@@ -125,38 +114,18 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
-  /**------------------------- GithubRepos*/
+  /** ---------------------------------------Demo Routes ------------ */
 
-  def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
-    gitService.getGitHubRepo(userName).value.map {
-      case Right(publicRepos) => Ok(views.html.displayUserRepos(Some(publicRepos)))
-      case Left(error) => Status(error.httpResponseStatus)
+  /** -----*
+   * Routes not used in the applications demo purpose only
+   */
+  def getGitHubUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitHubUser(userName).value.map {
+      case Right(dataModel) => Ok(Json.toJson(dataModel))
+      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
     }
   }
 
-  /**------------------------- Get Dirs & Folders */
 
-  def getGitDirsAndFiles(userName: String, repoName: String): Action[AnyContent] = Action.async { implicit request =>
-    gitService.getGitDirsAndFiles(userName, repoName).value.map {
-      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName))
-      case Left(error) => Status(error.httpResponseStatus)
-    }
-  }
-
-  def getGitRepoFileContent(userName:String, repoName:String, path:String): Action[AnyContent] = Action.async { implicit request =>
-    gitService.getGitRepoFileContent(userName,repoName, path ).value.map {
-      case Right(contents) =>
-      val filledForm = editForm.fill(FileContent(contents.content, contents.sha, contents.path))
-        Ok(views.html.viewPageContent(filledForm, userName, repoName, path))
-      case Left(error) => Status(error.httpResponseStatus)
-    }
-  }
-
-  def openGitDir(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
-    gitService.openGitDir(userName, repoName, path).value.map {
-      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName, Some(path)))
-      case Left(error) => Status(error.httpResponseStatus)
-    }
-  }
 }
 

@@ -19,7 +19,7 @@ POST          /api/create/                                                      
 DELETE        /api/delete/:userName                                                        controllers.ApplicationController.deleteDatabaseUser(userName)
 
 PATCH         /api/updateUser/:userName                                                    controllers.ApplicationController.updateDatabaseUser(userName)
-GET           /                                                             controllers.HomeController.index
+GET           /                                                                            controllers.HomeController.index
 
 
 # Demo Routes
@@ -30,18 +30,18 @@ GET           /                                                             cont
 GET           /apiDemo/:userName                                                           controllers.ApplicationController.readDataBaseUser(userName)
 
 GET           /addUser/form                                                                controllers.ApplicationController.displayForm()
-#POST     /addUser/form                                                                     controllers.ApplicationController.createDatabaseUserForm()
+POST          /addUser/form                                                                controllers.ApplicationController.createDatabaseUserForm()
 
 GET           /findUser                                                                    controllers.ApplicationController.findUser()
 
 
-GET           /Github/repo/:userName                                                       controllers.ApplicationController.getGitHubRepos(userName)
-GET           /Github/repo/content/:userName/:repoName                                     controllers.ApplicationController.getGitDirsAndFiles(userName, repoName)
+GET           /Github/repo/:userName                                                       controllers.GitHubRepoController.getGitHubRepos(userName)
+GET           /Github/repo/content/:userName/:repoName                                     controllers.GitHubRepoController.getGitDirsAndFiles(userName, repoName)
 
 
-GET           /Github/repo/dir/:userName/:repoName/:path                                   controllers.ApplicationController.openGitDir(userName, repoName, path)
 
-GET           /Github/repo/content/:userName/:repoName/:path                               controllers.ApplicationController.getGitRepoFileContent(userName, repoName, path)
+GET           /Github/repo/content/:userName/:repoName/:path                               controllers.GitHubRepoController.getGitRepoFileContent(userName, repoName, path)
+GET           /Github/repo/dir/:userName/:repoName/:path                                   controllers.GitHubRepoController.openGitDir(userName, repoName, path)
 
 GET           /GitHub/repos/:owner/:repo/contents/:path/:fileName                          controllers.GitHubRepoController.deleteDirectoryOrFile(owner, repo, path, fileName)
 GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileName        controllers.GitHubRepoController.displayDeleteForm(userName, repoName, sha, path, fileName)
@@ -49,8 +49,8 @@ GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileN
 GET           /GitHub/createFile/showForm/:userName/:repoName/                             controllers.GitHubRepoController.displayCreateFileForm(userName, repoName, path:Option[String])
 POST          /GitHub/createFileController/showForm/:userName/:repoName/                   controllers.GitHubRepoController.createFile(userName, repoName, path:Option[String])
 
-GET           /GitHub/editFile/showForm/:userName/:repoName/:path                           controllers.GitHubRepoController.displayEditContent(userName, repoName, path)
-GET           /GitHub/editFile/editForm/:userName/:repoName/:path                           controllers.GitHubRepoController.editContent(userName, repoName, path)
+GET           /GitHub/editFile/showForm/:userName/:repoName/:path                          controllers.GitHubRepoController.displayEditContent(userName, repoName, path)
+GET           /GitHub/editFile/editForm/:userName/:repoName/:path                          controllers.GitHubRepoController.editContent(userName, repoName, path)
 
 
 

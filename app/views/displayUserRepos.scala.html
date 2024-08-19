@@ -12,7 +12,7 @@
                 <p><strong>Name:</strong> @repo.name</p>
                 <p><strong>Language:</strong> @repo.language</p>
                 <p><strong>Last Modified:</strong> @repo.pushedAt</p>
-                <button class="repo-buttons"><a href="@routes.ApplicationController.getGitDirsAndFiles(repo.userName, repo.name)">Open Repository</a></button>
+                <button class="repo-buttons"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(repo.userName, repo.name)">Open Repository</a></button>
             </div>
 
             }

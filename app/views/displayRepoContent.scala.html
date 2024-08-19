@@ -17,7 +17,7 @@
     <div class="form-container">
         @if(repoContent.format == "file") {
         <p>
-            <a href="@routes.ApplicationController.getGitRepoFileContent(userName, repoName, repoContent.path)">
+            <a href="@routes.GitHubRepoController.getGitRepoFileContent(userName, repoName, repoContent.path)">
                 <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
                 @repoContent.name
                 @if(userName.equals("GarysRobot")){
@@ -28,7 +28,7 @@
         </p>
         } else {
         <p>
-            <a href="@routes.ApplicationController.openGitDir(userName, repoName, repoContent.path)">
+            <a href="@routes.GitHubRepoController.openGitDir(userName, repoName, repoContent.path)">
                 <img class="icon" src="@routes.Assets.versioned("images/folder-icon.png")" alt="folder icon">
                 @repoContent.name
             </a>

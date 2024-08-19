@@ -2,7 +2,7 @@ package controllers
 
 import models.CreateFileModel.createForm
 import models.DataModel.userForm
-import models.{DeleteModel, UpdateFileModel}
+import models.{DeleteModel, FileContent, UpdateFileModel}
 import models.DeleteModel.deleteForm
 import models.FileContent.editForm
 import models.UpdateFileModel.updateForm
@@ -41,6 +41,38 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         }
       })
       }
+  /**------------------------- Get Dirs & Folders */
+
+  def getGitDirsAndFiles(userName: String, repoName: String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitDirsAndFiles(userName, repoName).value.map {
+      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName))
+      case Left(error) => Status(error.httpResponseStatus)
+    }
+  }
+
+  def getGitRepoFileContent(userName:String, repoName:String, path:String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitRepoFileContent(userName,repoName, path ).value.map {
+      case Right(contents) =>
+        val filledForm = editForm.fill(FileContent(contents.content, contents.sha, contents.path))
+        Ok(views.html.viewPageContent(filledForm, userName, repoName, path))
+      case Left(error) => Status(error.httpResponseStatus)
+    }
+  }
+
+  def openGitDir(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.openGitDir(userName, repoName, path).value.map {
+      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName, Some(path)))
+      case Left(error) => Status(error.httpResponseStatus)
+    }
+  }
+  /**------------------------- GithubRepos*/
+
+  def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitHubRepo(userName).value.map {
+      case Right(publicRepos) => Ok(views.html.displayUserRepos(Some(publicRepos)))
+      case Left(error) => Status(error.httpResponseStatus)
+    }
+  }
 
   /** ---------------------------------- Create File Form */
 
