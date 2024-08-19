@@ -74,7 +74,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
-        Future.successful(Ok(Json.toJson(s"FormData: $formData #### Params:$userName, $repoName, $path")))
+        Future.successful(Ok(Json.toJson(s"FormData: ${formData.path} ${formData.content} ${formData.sha} ${formData.message} #### Params:$userName, $repoName, $path")))
 
       })
   }

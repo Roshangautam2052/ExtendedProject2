@@ -12,18 +12,18 @@
 
                 <div>
                     <p>File Name:</p>
-                    @helper.textarea(fileContent("path"), Symbol("required") -> "false" , Symbol("_label") -> "")
+                    @helper.textarea(fileContent("path"))
                 </div>
 
 
                 <div>
                     <p>File Content:</p>
-                    @helper.textarea(fileContent("content"), Symbol("required") -> "false" , Symbol("_label") -> "", Symbol("rows")  -> 10, Symbol("cols") -> 50)
+                    @helper.textarea(fileContent("content"))
                 </div>
 
                 <div>
                     <p>Commit Message:</p>
-                    @helper.textarea(fileContent("message"), Symbol("required") -> "false" , Symbol("_label") -> "")
+                    @helper.textarea(fileContent("message"))
                 </div>
 
                 @helper.CSRF.formField
