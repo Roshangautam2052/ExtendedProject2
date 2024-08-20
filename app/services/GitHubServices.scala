@@ -160,14 +160,14 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
 
         case Some(item) =>
           val file: String = (item \ "content").as[String]
           val clean64 = file.replaceAll("\\s","")
           val path = (item \ "path").as[String]
           val sha = (item \ "sha"). as[String]
-        val decodedFile = Base64.getDecoder.decode(clean64)
+          val decodedFile = Base64.getDecoder.decode(clean64)
           val textDecoded = new String(decodedFile, "UTF-8")
           Right(FileContent(textDecoded, sha, path))
 
@@ -193,7 +193,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
 
         case Some(item) =>
           Right(item.toString())
