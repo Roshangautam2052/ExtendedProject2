@@ -78,7 +78,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
     }
   }
 
-  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
+  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FilesAndDirsModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents"
 
 
@@ -88,7 +88,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
       case arr: JsArray =>
 
         if (arr.value.isEmpty) {
-          val empty: Seq[TopLevelModel] = Seq()
+          val empty: Seq[FilesAndDirsModel] = Seq()
           Right(empty)
         } else {
 
@@ -98,7 +98,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
             val path = (item \ "path").as[String]
             val sha = (item \ "sha"). as[String]
 
-          TopLevelModel(name,sha, format, path)
+          FilesAndDirsModel(name,sha, format, path)
         }.toSeq
         Right(contents)
     }
@@ -116,7 +116,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
     }
   }
 
-  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
+  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FilesAndDirsModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
 
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
@@ -133,7 +133,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
             val path = (item \ "path").as[String]
             val sha = (item \ "sha"). as[String]
 
-          TopLevelModel(name,sha, format, path)
+          FilesAndDirsModel(name,sha, format, path)
         }.toSeq
         Right(contents)
     }

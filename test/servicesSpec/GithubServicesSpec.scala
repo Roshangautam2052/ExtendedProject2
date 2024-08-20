@@ -143,5 +143,11 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   }
   }
 
+"getGitDirsAndFiles" should {
+  "return the public files and folders of the github user" in {
+    ???
+  }
+}
+
 }
 
