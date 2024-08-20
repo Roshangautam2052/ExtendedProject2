@@ -21,7 +21,7 @@ object DataModel{
     mapping(
       "userName" -> nonEmptyText,
       "dateAccount" -> localDate("yyyy-MM-dd"),
-      "location" -> nonEmptyText,
+      "location" -> optional(text).transform(_.getOrElse(""), (str: String) => Some(str)),
       "numberOfFollowers" -> number,
       "numberFollowing" -> number(min=0),
       "gitHubAccount" -> boolean
