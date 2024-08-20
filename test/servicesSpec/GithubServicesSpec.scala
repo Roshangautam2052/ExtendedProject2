@@ -30,7 +30,6 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
       "following" -> 2,
       "created_at" -> "2023-04-07T12:50:03Z",
     )
-
     val testNotFoundUser: JsValue = Json.obj(
       "message" -> "Not Found",
       "documentation_url" -> "https://docs.github.com/rest",
@@ -91,12 +90,6 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
     "language" -> "Scala",
     "pushed_at" -> "2023-01-28T12:23:48Z",
   ))
-
-  val testNotFoundRepo: JsValue = Json.obj(
-    "message" -> "Not Found",
-    "documentation_url" -> "https://docs.github.com/rest",
-    "status" -> "404"
-  )
   "return the users repos" in {
     val userName = "jamieletts"
     val url = s"https://api.github.com/users/$userName/repos"
@@ -115,7 +108,40 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         )))
     }
   }
-}
+  "return a 500 error for unexpected Json format" in {
+    val invalidFormat: JsValue = Json.obj(
+      "owner" -> Json.obj("login" -> "jamieletts"),
+      "name" -> "games-project",
+      "language" -> "Scala",
+      "pushed_at" -> "2023-01-28T12:23:48Z",
+    )
+    val apiError: APIError = APIError.BadAPIResponse(500, "Unexpected JSON format")
+    val userName: String = "jamieletts"
+    val url: String = s"https://api.github.com/users/$userName/repos"
+    (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
+      .expects(url, *, *)
+      .returning(EitherT.rightT[Future, APIError](invalidFormat))
+      .once()
+
+    whenReady(testService.getGitHubRepo(userName).value) { result =>
+      result shouldBe Left(apiError)
+    }
+  }
+  "return a 404 error for empty repository" in {
+    val emptyArr: JsValue = Json.arr()
+    val userName: String = "jamieletts"
+    val apiNotFound: APIError = APIError.NotFoundError(404, s"No repositories found for user $userName")
+    val url: String = s"https://api.github.com/users/$userName/repos"
+    (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
+      .expects(url, *, *)
+      .returning(EitherT.rightT[Future, APIError](emptyArr))
+      .once()
+
+    whenReady(testService.getGitHubRepo(userName).value) { result =>
+      result shouldBe Left(apiNotFound)
+    }
+  }
+  }
 
 }
 
