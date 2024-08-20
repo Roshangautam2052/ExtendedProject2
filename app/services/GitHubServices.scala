@@ -68,7 +68,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
 
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Repository not found in Github"))
         } else {
           Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
         }
@@ -106,7 +106,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
 
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
         } else {
           Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
         }
@@ -125,7 +125,8 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
       case arr: JsArray =>
 
         if (arr.value.isEmpty) {
-          Left(APIError.NotFoundError(404, s"This $repoName is empty"))
+          val empty: Seq[FilesAndDirsModel] = Seq()
+          Right(empty)
         } else {
           val contents = arr.value.map { item =>
             val name = (item \ "name").as[String]
@@ -141,7 +142,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
 
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
         } else {
           Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
         }
