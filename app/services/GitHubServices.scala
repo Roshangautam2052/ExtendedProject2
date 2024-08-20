@@ -12,7 +12,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: RepositoryServices) {
+class GitHubServices @Inject()(connector: GitHubConnector) {
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
     val url = s"https://api.github.com/users/$userName"

@@ -2,7 +2,7 @@ package servicesSpec
 
 import cats.data.EitherT
 import connector.GitHubConnector
-import models.{APIError, DataModel}
+import models._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
@@ -17,25 +17,25 @@ import scala.concurrent.{ExecutionContext, Future}
 class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures with GuiceOneAppPerSuite with Matchers {
 
   val mockConnector: GitHubConnector = mock[GitHubConnector]
-  val mockRepo: RepositoryServices = mock[RepositoryServices]
+  val testService = new GitHubServices(mockConnector)
   implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
-  val testService = new GitHubServices(mockConnector)(mockRepo)
 
-  val testData: JsValue = Json.obj(
+
+
+  "getGitHubUser" should {
+    val testData: JsValue = Json.obj(
       "login" -> "SpencerCGriffiths",
       "location" -> JsNull,
       "followers" -> 2,
       "following" -> 2,
       "created_at" -> "2023-04-07T12:50:03Z",
-  )
+    )
 
-  val testNotFoundUser: JsValue = Json.obj(
-    "message" -> "Not Found",
-    "documentation_url" -> "https://docs.github.com/rest",
-    "status" -> "404"
-  )
-
-  "getGitHubUser" should {
+    val testNotFoundUser: JsValue = Json.obj(
+      "message" -> "Not Found",
+      "documentation_url" -> "https://docs.github.com/rest",
+      "status" -> "404"
+    )
     "return the Data Model" in {
       val userName = "SpencerCGriffiths"
       val url = s"https://api.github.com/users/$userName"
@@ -83,4 +83,39 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
       }
     }
   }
+
+"getGitHubRepo" should {
+  val testRepo: JsValue = Json.arr(Json.obj(
+    "owner" -> Json.obj("login" -> "jamieletts"),
+    "name" -> "games-project",
+    "language" -> "Scala",
+    "pushed_at" -> "2023-01-28T12:23:48Z",
+  ))
+
+  val testNotFoundRepo: JsValue = Json.obj(
+    "message" -> "Not Found",
+    "documentation_url" -> "https://docs.github.com/rest",
+    "status" -> "404"
+  )
+  "return the users repos" in {
+    val userName = "jamieletts"
+    val url = s"https://api.github.com/users/$userName/repos"
+    (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
+      .expects(url, *, *)
+      .returning(EitherT.rightT[Future, APIError](testRepo))
+      .once()
+
+    whenReady(testService.getGitHubRepo(userName = "jamieletts").value) {
+      result =>
+        result shouldBe Right(Seq(PublicRepoDetails(
+          userName = "jamieletts",
+          name = "games-project",
+          language = Some("Scala"),
+          pushedAt = "2023-01-28T12:23:48Z"
+        )))
+    }
+  }
 }
+
+}
+
