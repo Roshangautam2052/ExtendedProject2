@@ -8,7 +8,8 @@ import models.FileContent.editForm
 import models.UpdateFileModel.updateForm
 import play.api
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents}
+import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
+import play.filters.csrf.CSRF
 import services.{GitHubServices, RepositoryServices}
 
 import javax.inject.{Inject, Singleton}
@@ -16,17 +17,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GitHubRepoController @Inject()(val controllerComponents: ControllerComponents,
-                                      val gitService: GitHubServices, val repoService: RepositoryServices)
+                                      val gitService: GitHubServices)
                                      (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
 
   /** ---------------------------------- Delete File */
-
+  def accessToken(implicit request: Request[_]): Option[CSRF.Token] = {
+    CSRF.getToken
+  }
   def displayDeleteForm(userName:String, repoName:String, sha:String, path:String, fileName: String ): Action[AnyContent] = Action.async { implicit request =>
     val filledForm = deleteForm.fill(DeleteModel("", sha))
     Future.successful(Ok(views.html.deleteRepoOrFile(userName, repoName, path, filledForm, fileName)))
   }
-
   def deleteDirectoryOrFile(userName:String, repo:String, path:String, fileName: String):Action[AnyContent] = Action.async { implicit request =>
     deleteForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
       formWithErrors => {
@@ -124,7 +126,6 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
-
         val filledForm = updateForm.fill(UpdateFileModel("", formData.content, formData.sha, formData.path))
         Future.successful(Ok(views.html.updateFileContent(filledForm, userName, repoName, path)))
 
