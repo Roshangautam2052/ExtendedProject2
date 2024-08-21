@@ -6,7 +6,7 @@ import cats.data.EitherT
 import models.CreateFileModel.createForm
 import models.DeleteModel.deleteForm
 import models.UpdateFileModel.updateForm
-import models.{APIError, CreateFileModel, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel, UpdateFileModel}
+import models.{APIError, CreateFileModel, DeleteModel, FileContent, PublicRepoDetails, UpdateFileModel, FilesAndDirsModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.MockitoSugar
@@ -86,7 +86,7 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val userName = "testUserName"
       val repoName = "testRepoName"
       val path = "anyPath"
-      val topLevelModelSeq:Seq[TopLevelModel] = Seq(TopLevelModel(
+      val topLevelModelSeq:Seq[FilesAndDirsModel] = Seq(FilesAndDirsModel(
         "fileName",
         "nonEmptySha",
         "file",
@@ -105,7 +105,7 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val userName = "testUserName"
       val repoName = "testRepoName"
       val path = "anyPath"
-      val topLevelModelSeq:Seq[TopLevelModel] = Seq(TopLevelModel(
+      val topLevelModelSeq:Seq[FilesAndDirsModel] = Seq(FilesAndDirsModel(
         "fileName",
         "nonEmptySha",
         "file",
@@ -163,7 +163,7 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val userName = "testUserName"
       val repoName = "testRepoName"
       val path = "anyPath"
-      val topLevelModelSeq: Seq[TopLevelModel] = Seq(TopLevelModel(
+      val topLevelModelSeq: Seq[FilesAndDirsModel] = Seq(FilesAndDirsModel(
         "fileName",
         "nonEmptySha",
         "dir",
@@ -182,7 +182,7 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val userName = "testUserName"
       val repoName = "testRepoName"
       val path = "anyPath"
-      val topLevelModelSeq: Seq[TopLevelModel] = Seq(TopLevelModel(
+      val topLevelModelSeq: Seq[FilesAndDirsModel] = Seq(FilesAndDirsModel(
         "fileName",
         "nonEmptySha",
         "file",
@@ -199,7 +199,7 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val userName = "testUserName"
       val repoName = "testRepoName"
       val path = "anyPath"
-      val topLevelModelSeq: Seq[TopLevelModel] = Seq(TopLevelModel(
+      val topLevelModelSeq: Seq[FilesAndDirsModel] = Seq(FilesAndDirsModel(
         "fileName",
         "nonEmptySha",
         "file",
