@@ -51,14 +51,6 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   /** --------------------------------------- Create Search Bar */
 
-
-  def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
-    repoService.readUser(userName).map {
-      case Right(user) => Ok(Json.toJson(user))
-      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
-    }
-  }
-
   def readDatabaseOrAddFromGithub(): Action[AnyContent] = Action.async { implicit request =>
     UserSearchParameter.userSearchForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(views.html.finduser(formWithErrors, None))),
@@ -126,6 +118,12 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
     }
   }
 
+  def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    repoService.readUser(userName).map {
+      case Right(user) => Ok(Json.toJson(user))
+      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+    }
+  }
 
 }
 
