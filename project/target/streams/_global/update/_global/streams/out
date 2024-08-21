@@ -1,3 +1,3 @@
-[debug] not up to date. inChanged = true, force = false
-[debug] Updating ProjectRef(uri("file:/Users/roshan.gautam/Desktop/ExtendedProject2Template/project/"), "extendedproject2template-build")...
-[debug] Done updating ProjectRef(uri("file:/Users/roshan.gautam/Desktop/ExtendedProject2Template/project/"), "extendedproject2template-build")
+[0m[[0m[0mdebug[0m] [0m[0mnot up to date. inChanged = true, force = false[0m
+[0m[[0m[0mdebug[0m] [0m[0mUpdating ProjectRef(uri("file:/Users/spencer.griffiths/Documents/ScalaAcademy/Projects/ExtendedProject2/project/"), "extendedproject2-build")...[0m
+[0m[[0m[0mdebug[0m] [0m[0mDone updating ProjectRef(uri("file:/Users/spencer.griffiths/Documents/ScalaAcademy/Projects/ExtendedProject2/project/"), "extendedproject2-build")[0m

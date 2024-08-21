@@ -12,9 +12,9 @@ trait GitHubServiceTrait {
 
   def getGitHubRepo(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[PublicRepoDetails]]
 
-  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]]
+  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FilesAndDirsModel]]
 
-  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]]
+  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FilesAndDirsModel]]
 
   def getGitRepoFileContent(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, FileContent]
 
@@ -25,3 +25,4 @@ trait GitHubServiceTrait {
   def editContent(userName: String, repoName: String, path: String, formData: UpdateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String]
 
 }
+
