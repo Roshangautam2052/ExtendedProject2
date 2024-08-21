@@ -223,7 +223,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
 
         case Some(item) =>
           Right(item.toString())

@@ -366,7 +366,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   "deleteDirectoryOrFile" should {
     val repo = "testRepo"
     val userName = "jamieletts"
-    val path = ".html"
+    val path = "fileName"
     val url = s"https://api.github.com/repos/$userName/$repo/contents/$path"
     val formData = DeleteModel (
       message = "gone",
@@ -425,8 +425,66 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   }
 
   "createFile" should {
+    val repo = "testRepo"
+    val userName = "jamieletts"
+    val fileName = "testFileName"
+    val path = Some("testPath")
+    val formData = CreateFileModel(
+      message = "my message",
+      content = "<div>Hello</div>",
+      fileName = "name.html"
+    )
+    val encodedFormContent = Base64.getEncoder.encodeToString(formData.content.getBytes)
+    val body = Json.obj(
+      "message" -> formData.message,
+      "content" -> encodedFormContent,
+      "fileName" -> formData.fileName
+    )
+    val url = path match {
+      case Some(path) => s"https://api.github.com/repos/$userName/$repo/contents/$path/$fileName"
+      case _ => s"https://api.github.com/repos/$userName/$repo/contents/$fileName"
+    }
     "create a new file in a repository" in {
-      ???
+      (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(url, body, *, *)
+        .returning(EitherT.rightT[Future, APIError](body))
+        .once()
+
+      whenReady(testService.createFile(userName, repo, fileName, formData, path: Option[String]).value) { result =>
+        result shouldBe Right(body.toString())
+      }
+    }
+    "return a 404 when directory not found" in {
+      val testNotFoundUser: JsValue = Json.obj(
+        "message" -> "Not Found",
+        "documentation_url" -> "https://docs.github.com/rest",
+        "status" -> "404"
+      )
+      val apiNotFound: APIError = APIError.NotFoundError(404, "Directory not found in Github")
+      (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(url, body, *, *)
+        .returning(EitherT.rightT[Future, APIError](testNotFoundUser))
+        .once()
+
+      whenReady(testService.createFile(userName, repo, fileName, formData, path: Option[String]).value) { result =>
+        result shouldBe Left(apiNotFound)
+      }
+    }
+    "return a 500 for invalid Json data" in {
+      val invalidBody = Json.arr(Json.obj(
+        "message" -> formData.message,
+        "content" -> encodedFormContent,
+        "fileName" -> formData.fileName
+      ))
+      val apiError: APIError = APIError.BadAPIResponse(500, "Error with Github Response Data")
+      (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(url, body, *, *)
+        .returning(EitherT.rightT[Future, APIError](invalidBody))
+        .once()
+
+      whenReady(testService.createFile(userName, repo, fileName, formData, path: Option[String]).value) { result =>
+        result shouldBe Left(apiError)
+      }
     }
   }
 }
