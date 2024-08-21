@@ -21,9 +21,19 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play"   % "5.1.0"          % Test
 )
 
+
 libraryDependencies += ws
 
 libraryDependencies += ("org.typelevel"                %% "cats-core"                 % "2.3.0")
+
+//Wire Mocking Dependencies:
+libraryDependencies += "com.github.tomakehurst" % "wiremock-jre8" % "2.33.2" % Test
+libraryDependencies ++= Seq(
+  "com.typesafe.play" %% "play-ahc-ws" % "2.8.15",  // Replace with the correct version of Play WS
+  "com.typesafe.play" %% "play-ws-standalone" % "2.1.6" % Test  // Add this if it's not already included
+)
+
+dependencyOverrides +="com.fasterxml.jackson.core" % "jackson-databind" % "2.11.0"
 // Adds additional packages into Twirl
 //TwirlKeys.templateImports += "com.example.controllers._"
 

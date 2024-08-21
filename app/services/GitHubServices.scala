@@ -4,6 +4,7 @@ import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
 import models._
+import play.api.libs.json.JsNull.asOpt
 import play.api.libs.json._
 
 import java.time.ZonedDateTime
@@ -105,9 +106,12 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
 
 
       case obj: JsObject =>
-        if ((obj \ "status").asOpt[String].contains("404")) {
-          Left(APIError.NotFoundError(404, "User not found in Github"))
-        } else {
+        if ((obj \ "status").asOpt[String].contains("404") && (obj \ "message").asOpt[String].contains("This repository is empty")) {
+          Right(Seq())
+        } else if ((obj \ "status").asOpt[String].contains("404")) {
+          Left(APIError.NotFoundError(404, "User or Repository Not found"))
+        }
+        else {
           Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
         }
 
@@ -192,9 +196,18 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "File, user or repo does not exist to delete"))
+
+        case Some(item) if (item \ "status").asOpt[String].contains("409") =>
+          val message = (item \ "message").as[String]
+          Left(APIError.NotModified(409, message))
+
+        case Some(item) if (item \ "status").asOpt[String].contains("422") =>
+          val message = (item \ "message").as[String]
+          Left(APIError.NotModified(422, message))
 
         case Some(item) =>
+          // could check for message = "Delete" for validation
           Right(item.toString())
 
         case None =>
@@ -213,7 +226,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     val body = Json.obj(
       "message" -> formData.message,
       "content" -> encodedFormContent,
-      "fileName" -> formData.fileName
+      "fileName" -> fileName
     )
 
     connector.create[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
@@ -225,6 +238,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
           Left(APIError.NotFoundError(404, "User not found in Github"))
 
         case Some(item) =>
+          // could check message = create for validation
           Right(item.toString())
 
         case None =>
@@ -252,7 +266,16 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "File, user or repo does not exist to delete"))
+
+        case Some(item) if (item \ "status").asOpt[String].contains("409") =>
+          val message = (item \ "message").as[String]
+          Left(APIError.NotModified(409, message))
+
+        case Some(item) if (item \ "status").asOpt[String].contains("422") =>
+          val message = (item \ "message").as[String]
+          Left(APIError.NotModified(422, message))
+
 
         case Some(item) =>
           val result = if(path != formData.path) {
