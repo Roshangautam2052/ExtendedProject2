@@ -10,14 +10,14 @@ import play.api
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
 import play.filters.csrf.CSRF
-import services.{GitHubServices, RepositoryServices}
+import services.{GitHubServiceTrait, GitHubServices, RepositoryServices}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GitHubRepoController @Inject()(val controllerComponents: ControllerComponents,
-                                      val gitService: GitHubServices)
+                                      val gitService: GitHubServiceTrait)
                                      (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
 
@@ -64,7 +64,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   def openGitDir(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.openGitDir(userName, repoName, path).value.map {
       case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName, Some(path)))
-      case Left(error) => Status(error.httpResponseStatus)
+      case Left(error) => Status(error.httpResponseStatus)(error.reason)
     }
   }
   /**------------------------- GithubRepos*/
@@ -72,7 +72,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubRepo(userName).value.map {
       case Right(publicRepos) => Ok(views.html.displayUserRepos(Some(publicRepos)))
-      case Left(error) => Status(error.httpResponseStatus)
+      case Left(error) => Status(error.httpResponseStatus)(error.reason)
     }
   }
 

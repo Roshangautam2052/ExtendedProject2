@@ -43,7 +43,7 @@ GET           /Github/repo/content/:userName/:repoName                          
 GET           /Github/repo/content/:userName/:repoName/:path                               controllers.GitHubRepoController.getGitRepoFileContent(userName, repoName, path)
 GET           /Github/repo/dir/:userName/:repoName/:path                                   controllers.GitHubRepoController.openGitDir(userName, repoName, path)
 
-DELETE         /GitHub/repos/:owner/:repo/contents/:path/:fileName                          controllers.GitHubRepoController.deleteDirectoryOrFile(owner, repo, path, fileName)
+GET        /GitHub/repos/:owner/:repo/contents/:path/:fileName                          controllers.GitHubRepoController.deleteDirectoryOrFile(owner, repo, path, fileName)
 GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileName        controllers.GitHubRepoController.displayDeleteForm(userName, repoName, sha, path, fileName)
 
 GET           /GitHub/createFile/showForm/:userName/:repoName/                             controllers.GitHubRepoController.displayCreateFileForm(userName, repoName, path:Option[String])

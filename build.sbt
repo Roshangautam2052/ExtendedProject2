@@ -19,6 +19,8 @@ libraryDependencies ++= Seq(
   "org.scalatest"          %% "scalatest"               % "3.2.15"             % Test,
   "org.scalamock"          %% "scalamock"               % "5.2.0"             % Test,
   "org.scalatestplus.play" %% "scalatestplus-play"   % "5.1.0"              % Test,
+  "org.mockito"             % "mockito-core"         % "4.2.0"              % Test,
+  "org.mockito"             %% "mockito-scala"       % "1.16.46"           % Test
 )
 
 libraryDependencies += ws
