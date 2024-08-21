@@ -152,9 +152,8 @@
     <orderEntry type="library" name="sbt: org.mongodb:bson:4.5.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.mongodb:mongodb-driver-core:4.5.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.mongodb:mongodb-driver-reactivestreams:4.5.0:jar" level="project" />
-
+    <orderEntry type="library" scope="TEST" name="sbt: org.objenesis:objenesis:3.2:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.ow2.asm:asm:9.3:jar" level="project" />
-
     <orderEntry type="library" name="sbt: org.reactivestreams:reactive-streams:1.0.3:jar" level="project" />
     <orderEntry type="library" name="sbt: org.scala-lang.modules:scala-java8-compat_2.13:1.0.2:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.scala-lang.modules:scala-parallel-collections_2.13:1.0.4:jar" level="project" />
@@ -200,11 +199,10 @@
     <orderEntry type="library" name="sbt: org.typelevel:cats-core_2.13:2.3.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.typelevel:cats-kernel_2.13:2.3.0:jar" level="project" />
     <orderEntry type="library" name="sbt: org.typelevel:simulacrum-scalafix-annotations_2.13:0.5.1:jar" level="project" />
-
     <orderEntry type="library" scope="TEST" name="sbt: org.xmlunit:xmlunit-core:2.9.0:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.xmlunit:xmlunit-legacy:2.9.0:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: org.xmlunit:xmlunit-placeholders:2.9.0:jar" level="project" />
-
+    <orderEntry type="library" scope="TEST" name="sbt: ru.vyarus:generics-resolver:3.0.3:jar" level="project" />
     <orderEntry type="library" name="sbt: uk.gov.hmrc.mongo:hmrc-mongo-common_2.13:0.63.0:jar" level="project" />
     <orderEntry type="library" name="sbt: uk.gov.hmrc.mongo:hmrc-mongo-play-28_2.13:0.63.0:jar" level="project" />
     <orderEntry type="library" scope="TEST" name="sbt: xalan:serializer:2.7.2:jar" level="project" />

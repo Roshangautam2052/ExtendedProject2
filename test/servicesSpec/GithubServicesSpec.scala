@@ -215,7 +215,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         "documentation_url" -> "https://docs.github.com/rest",
         "status" -> "404"
       )
-      val apiNotFound: APIError = APIError.NotFoundError(404, "Directory not found in Github")
+      val apiNotFound: APIError = APIError.NotFoundError(404, "User or Repository Not found")
       val userName: String = "NotAUser"
       val url = s"https://api.github.com/repos/$userName/$repoName/contents"
       (mockConnector.get[JsValue](_: String)(_: OFormat[JsValue], _: ExecutionContext))
@@ -399,7 +399,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         "documentation_url" -> "https://docs.github.com/rest",
         "status" -> "404"
       )
-      val apiNotFound: APIError = APIError.NotFoundError(404, "Directory not found in Github")
+      val apiNotFound: APIError = APIError.NotFoundError(404, "File, user or repo does not exist to delete")
       (mockConnector.delete[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(url, body, *, *)
         .returning(EitherT.rightT[Future, APIError](testNotFoundUser))
@@ -544,7 +544,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         "documentation_url" -> "https://docs.github.com/rest",
         "status" -> "404"
       )
-      val apiNotFound: APIError = APIError.NotFoundError(404, "Directory not found in Github")
+      val apiNotFound: APIError = APIError.NotFoundError(404, "File, user or repo does not exist to delete")
       (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
         .expects(createUrl, createBody, *, *)
         .returning(EitherT.rightT[Future, APIError](testNotFoundUser))

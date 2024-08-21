@@ -230,7 +230,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
     val body = Json.obj(
       "message" -> formData.message,
       "content" -> encodedFormContent,
-      "fileName" -> fileName
+      "fileName" -> formData.fileName
     )
 
     connector.create[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
