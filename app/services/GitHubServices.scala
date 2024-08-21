@@ -12,7 +12,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector: GitHubConnector) {
+class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubServiceTrait {
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
     val url = s"https://api.github.com/users/$userName"
@@ -253,7 +253,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) {
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
 
         case Some(item) =>
           val result = if(path != formData.path) {

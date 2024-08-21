@@ -9,7 +9,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsNull, JsObject, JsValue, Json, OFormat}
-import services.{GitHubServices, RepositoryServices}
+import services._
 
 import java.time.LocalDate
 import java.util.Base64
@@ -20,6 +20,8 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
   val mockConnector: GitHubConnector = mock[GitHubConnector]
   val testService = new GitHubServices(mockConnector)
   implicit val executionContext: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+  val mockGitHubServices: GitHubServiceTrait = mock[GitHubServiceTrait]
+
 
 
   "getGitHubUser" should {
@@ -434,10 +436,9 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
       content = "<div>Hello</div>",
       fileName = "name.html"
     )
-    val encodedFormContent = Base64.getEncoder.encodeToString(formData.content.getBytes)
     val body = Json.obj(
       "message" -> formData.message,
-      "content" -> encodedFormContent,
+      "content" -> "PGRpdj5IZWxsbzwvZGl2Pg==",
       "fileName" -> formData.fileName
     )
     val url = path match {
@@ -473,7 +474,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
     "return a 500 for invalid Json data" in {
       val invalidBody = Json.arr(Json.obj(
         "message" -> formData.message,
-        "content" -> encodedFormContent,
+        "content" -> "PGRpdj5IZWxsbzwvZGl2Pg==",
         "fileName" -> formData.fileName
       ))
       val apiError: APIError = APIError.BadAPIResponse(500, "Error with Github Response Data")
@@ -483,6 +484,89 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         .once()
 
       whenReady(testService.createFile(userName, repo, fileName, formData, path: Option[String]).value) { result =>
+        result shouldBe Left(apiError)
+      }
+    }
+  }
+
+  "editContent" should {
+    val repoName = "testRepo"
+    val userName = "jamieletts"
+    val fileName = "FileNameToDelete"
+    val formData = UpdateFileModel(
+      message = "edit message",
+      content = "<div>Hello!</div>",
+      sha = "4578",
+      path = "newPath"
+    )
+    val createBody = Json.obj(
+      "message" -> formData.message,
+      "content" -> Base64.getEncoder.encodeToString(formData.content.getBytes),
+      "sha" -> formData.sha
+    )
+
+    val deleteFormData = DeleteModel (
+      message = s"Delete Duplication ${formData.message}",
+      sha = "4578"
+    )
+
+    val deleteBody = Json.obj(
+      "message" -> deleteFormData.message,
+      "sha" -> deleteFormData.sha
+    )
+    val createUrl =  s"https://api.github.com/repos/$userName/$repoName/contents/${formData.path}"
+    val deleteUrl = s"https://api.github.com/repos/$userName/$repoName/contents/$fileName"
+
+    "update and create a new file in a repository, and delete the old to avoid duplicates" in {
+      if (fileName != formData.path) {
+        (mockConnector.delete[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+          .expects(deleteUrl, deleteBody, *, *)
+          .returning(EitherT.rightT[Future, APIError](deleteBody))
+          .once()
+        whenReady(testService.deleteDirectoryOrFile(userName, repoName, fileName, deleteFormData).value) { result =>
+          result shouldBe Right(deleteBody.toString())
+        }
+      } else {
+        (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+          .expects(createUrl, createBody, *, *)
+          .returning(EitherT.rightT[Future, APIError](createBody))
+          .once()
+
+        whenReady(testService.editContent(userName, repoName, fileName, formData).value) { result =>
+          result shouldBe Right(createBody.toString())
+
+        }
+      }
+    }
+    "return a 404 when directory not found" in {
+      val testNotFoundUser: JsValue = Json.obj(
+        "message" -> "Not Found",
+        "documentation_url" -> "https://docs.github.com/rest",
+        "status" -> "404"
+      )
+      val apiNotFound: APIError = APIError.NotFoundError(404, "Directory not found in Github")
+      (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(createUrl, createBody, *, *)
+        .returning(EitherT.rightT[Future, APIError](testNotFoundUser))
+        .once()
+
+      whenReady(testService.editContent(userName, repoName, fileName, formData: UpdateFileModel).value) { result =>
+        result shouldBe Left(apiNotFound)
+      }
+    }
+    "return a 500 for invalid Json data" in {
+      val invalidBody = Json.arr(Json.obj(
+        "message" -> formData.message,
+        "content" -> "PGRpdj5IZWxsbyE8L2Rpdj4=",
+        "sha" -> formData.sha
+      ))
+      val apiError: APIError = APIError.BadAPIResponse(500, "Error with Github Response Data")
+      (mockConnector.create[JsValue](_: String, _: JsObject)(_: OFormat[JsValue], _: ExecutionContext))
+        .expects(createUrl, createBody, *, *)
+        .returning(EitherT.rightT[Future, APIError](invalidBody))
+        .once()
+
+      whenReady(testService.editContent(userName, repoName, fileName, formData: UpdateFileModel).value) { result =>
         result shouldBe Left(apiError)
       }
     }
