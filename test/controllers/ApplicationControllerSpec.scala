@@ -313,7 +313,6 @@ val testDataNotOnGitHubUpdate: DataModel = DataModel(
 
         status(createResult) shouldBe BAD_REQUEST
         afterEach()
-//
       }
     }
   }
