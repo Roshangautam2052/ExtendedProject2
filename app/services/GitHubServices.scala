@@ -13,7 +13,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: RepositoryServices) {
+class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubServiceTrait {
 
   def getGitHubUser(userName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, DataModel] = {
     val url = s"https://api.github.com/users/$userName"
@@ -69,7 +69,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
 
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Repository not found in Github"))
         } else {
           Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
         }
@@ -79,7 +79,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
-  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
+  def getGitDirsAndFiles(userName: String, repoName: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FilesAndDirsModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents"
 
 
@@ -89,7 +89,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       case arr: JsArray =>
 
         if (arr.value.isEmpty) {
-          val empty: Seq[TopLevelModel] = Seq()
+          val empty: Seq[FilesAndDirsModel] = Seq()
           Right(empty)
         } else {
 
@@ -99,13 +99,14 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
             val path = (item \ "path").as[String]
             val sha = (item \ "sha"). as[String]
 
-          TopLevelModel(name,sha, format, path)
+          FilesAndDirsModel(name,sha, format, path)
         }.toSeq
         Right(contents)
     }
 
 
       case obj: JsObject =>
+
         if ((obj \ "status").asOpt[String].contains("404") && (obj \ "message").asOpt[String].contains("This repository is empty")) {
           Right(Seq())
         } else if ((obj \ "status").asOpt[String].contains("404")) {
@@ -120,7 +121,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
     }
   }
 
-  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[TopLevelModel]] = {
+  def openGitDir(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, Seq[FilesAndDirsModel]] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
 
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
@@ -129,7 +130,8 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       case arr: JsArray =>
 
         if (arr.value.isEmpty) {
-          Left(APIError.NotFoundError(404, s"This $repoName is empty"))
+          val empty: Seq[FilesAndDirsModel] = Seq()
+          Right(empty)
         } else {
           val contents = arr.value.map { item =>
             val name = (item \ "name").as[String]
@@ -137,7 +139,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
             val path = (item \ "path").as[String]
             val sha = (item \ "sha"). as[String]
 
-          TopLevelModel(name,sha, format, path)
+          FilesAndDirsModel(name,sha, format, path)
         }.toSeq
         Right(contents)
     }
@@ -145,7 +147,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
 
       case obj: JsObject =>
         if ((obj \ "status").asOpt[String].contains("404")) {
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
         } else {
           Left(APIError.BadAPIResponse(500, "Unexpected JSON format"))
         }
@@ -163,14 +165,14 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
 
         case Some(item) =>
           val file: String = (item \ "content").as[String]
           val clean64 = file.replaceAll("\\s","")
           val path = (item \ "path").as[String]
           val sha = (item \ "sha"). as[String]
-        val decodedFile = Base64.getDecoder.decode(clean64)
+          val decodedFile = Base64.getDecoder.decode(clean64)
           val textDecoded = new String(decodedFile, "UTF-8")
           Right(FileContent(textDecoded, sha, path))
 
@@ -196,6 +198,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
+
           Left(APIError.NotFoundError(404, "File, user or repo does not exist to delete"))
 
         case Some(item) if (item \ "status").asOpt[String].contains("409") =>
@@ -205,6 +208,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         case Some(item) if (item \ "status").asOpt[String].contains("422") =>
           val message = (item \ "message").as[String]
           Left(APIError.NotModified(422, message))
+
 
         case Some(item) =>
           // could check for message = "Delete" for validation
@@ -235,7 +239,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-          Left(APIError.NotFoundError(404, "User not found in Github"))
+          Left(APIError.NotFoundError(404, "Directory not found in Github"))
 
         case Some(item) =>
           // could check message = create for validation
@@ -266,6 +270,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
+
           Left(APIError.NotFoundError(404, "File, user or repo does not exist to delete"))
 
         case Some(item) if (item \ "status").asOpt[String].contains("409") =>
@@ -275,6 +280,7 @@ class GitHubServices @Inject()(connector: GitHubConnector)(repositoryServices: R
         case Some(item) if (item \ "status").asOpt[String].contains("422") =>
           val message = (item \ "message").as[String]
           Left(APIError.NotModified(422, message))
+
 
 
         case Some(item) =>
