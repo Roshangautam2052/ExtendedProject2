@@ -17,19 +17,21 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GitHubRepoController @Inject()(val controllerComponents: ControllerComponents,
-                                      val gitService: GitHubServiceTrait)
-                                     (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
+                                     val gitService: GitHubServiceTrait)
+                                    (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
 
   /** ---------------------------------- Delete File */
   def accessToken(implicit request: Request[_]): Option[CSRF.Token] = {
     CSRF.getToken
   }
-  def displayDeleteForm(userName:String, repoName:String, sha:String, path:String, fileName: String ): Action[AnyContent] = Action.async { implicit request =>
+
+  def displayDeleteForm(userName: String, repoName: String, sha: String, path: String, fileName: String): Action[AnyContent] = Action.async { implicit request =>
     val filledForm = deleteForm.fill(DeleteModel("", sha))
     Future.successful(Ok(views.html.deleteRepoOrFile(userName, repoName, path, filledForm, fileName)))
   }
-  def deleteDirectoryOrFile(userName:String, repo:String, path:String, fileName: String):Action[AnyContent] = Action.async { implicit request =>
+
+  def deleteDirectoryOrFile(userName: String, repo: String, path: String, fileName: String): Action[AnyContent] = Action.async { implicit request =>
     deleteForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
       formWithErrors => {
         //here write what you want to do if the form has errors
@@ -42,18 +44,20 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       })
-      }
-  /**------------------------- Get Dirs & Folders */
+  }
+
+  /** ------------------------- Get Dirs & Folders */
 
   def getGitDirsAndFiles(userName: String, repoName: String): Action[AnyContent] = Action.async { implicit request =>
+    accessToken
     gitService.getGitDirsAndFiles(userName, repoName).value.map {
       case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName))
       case Left(error) => Status(error.httpResponseStatus)
     }
   }
 
-  def getGitRepoFileContent(userName:String, repoName:String, path:String): Action[AnyContent] = Action.async { implicit request =>
-    gitService.getGitRepoFileContent(userName,repoName, path ).value.map {
+  def getGitRepoFileContent(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
+    gitService.getGitRepoFileContent(userName, repoName, path).value.map {
       case Right(contents) =>
         val filledForm = editForm.fill(FileContent(contents.content, contents.sha, contents.path))
         Ok(views.html.viewPageContent(filledForm, userName, repoName, path))
@@ -67,7 +71,8 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       case Left(error) => Status(error.httpResponseStatus)(error.reason)
     }
   }
-  /**------------------------- GithubRepos*/
+
+  /** ------------------------- GithubRepos */
 
   def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubRepo(userName).value.map {
@@ -78,11 +83,11 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
 
   /** ---------------------------------- Create File Form */
 
-  def displayCreateFileForm(userName: String, repoName: String, path:Option[String]): Action[AnyContent] = Action.async { implicit request =>
+  def displayCreateFileForm(userName: String, repoName: String, path: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok(views.html.createFileForm(userName, repoName, createForm, path)))
   }
 
-  def createFile(userName: String, repo: String, path:Option[String]):Action[AnyContent] = Action.async { implicit request =>
+  def createFile(userName: String, repo: String, path: Option[String]): Action[AnyContent] = Action.async { implicit request =>
 
     createForm.bindFromRequest().fold(
       formWithErrors => {
@@ -92,7 +97,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formData => {
 
         gitService.createFile(userName, repo, formData.fileName, formData, path).value.map {
-          case Right(content) => Created(Json.toJson("success gary!"))
+          case Right(content) => Created(Json.toJson(content))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       })
@@ -100,7 +105,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
 
   /** ---------------------------------- Update File Form */
 
-  def editContent(userName: String, repoName: String, path: String):Action[AnyContent] = Action.async { implicit request =>
+  def editContent(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
     updateForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
       formWithErrors => {
         //here write what you want to do if the form has errors
@@ -110,10 +115,10 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formData => {
         gitService.editContent(userName, repoName, path, formData).value.map {
           case Right(contents) => Ok(Json.toJson(contents))
-          case Left(error)  => Status(error.httpResponseStatus)
+          case Left(error) => Status(error.httpResponseStatus)(error.reason)
 
         }
-        Future.successful(Ok(Json.toJson(s"FormData: ${formData.path} ${formData.content} ${formData.sha} ${formData.message} #### Params:$userName, $repoName, $path")))
+
 
       })
   }

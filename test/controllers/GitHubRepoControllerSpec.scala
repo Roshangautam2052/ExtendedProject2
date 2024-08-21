@@ -1,8 +1,10 @@
 package controllers
 
 import cats.data.EitherT
+import models.CreateFileModel.createForm
 import models.DeleteModel.deleteForm
-import models.{APIError, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel}
+import models.UpdateFileModel.updateForm
+import models.{APIError, CreateFileModel, DeleteModel, FileContent, PublicRepoDetails, TopLevelModel, UpdateFileModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.MockitoSugar
@@ -108,43 +110,42 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       ))
       when(mockGitHubServices.getGitDirsAndFiles(eqTo("testUserName"), eqTo("testRepoName"))(any()))
         .thenReturn(EitherT.leftT(APIError.NotFoundError(404, "User not found in Github")))
+
       implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET, s"/Github/repo/dir/$userName/$repoName/$path ")
       val result: Future[Result] = testGitHubRepoController.getGitDirsAndFiles(userName, repoName)(request)
       status(result) mustBe NOT_FOUND
     }
   }
-//  "GitHubRepoController.getGitRepoFileContent" should{
-//    "return 2OO Ok when a FileContent object has been returned by the service" in {
-//      val userName = "testUserName"
-//      val repoName = "testRepoName"
-//      val path = "anyPath"
-//      val fileContent:FileContent = FileContent(
-//        "FileContent",
-//        "nonEmptySha",
-//        "path"
-//      )
-//      when(mockGitHubServices.getGitRepoFileContent(eqTo("testUserName"), eqTo("testRepoName"),eqTo("anyPath"))(any()))
-//        .thenReturn(EitherT.rightT(fileContent))
-//      implicit val request:FakeRequest[AnyContentAsEmpty.type] = FakeRequest(GET,  s"/Github/repo/content/$userName/$repoName/$path")
-//      val result: Future[Result] = testGitHubRepoController.getGitRepoFileContent(userName, repoName, path)(request)
-//       status(result) mustBe OK
-//
-//
-//    }
-//    "return error with error message when error is returned by the service" in {
-//      val userName = "testUserName"
-//      val repoName = "testRepoName"
-//      val path = "anyPath"
-//
-//      when(mockGitHubServices.getGitRepoFileContent(eqTo("testUserName"), eqTo("testRepoName"),eqTo("anyPath"))(any()))
-//        .thenReturn(EitherT.leftT(APIError.BadAPIResponse(500, "Error with Github Response Data")))
-//      implicit val request: RequestHeader = FakeRequest(GET,  s"/Github/repo/content/$userName/$repoName/$path").withCSRFToken
-//      val result = testGitHubRepoController.getGitRepoFileContent(userName, repoName, path)(request)
-//      status(result) mustBe INTERNAL_SERVER_ERROR
-//
-//
-//    }
-//  }
+  "GitHubRepoController.getGitRepoFileContent" should{
+    "return 2OO Ok when a FileContent object has been returned by the service" in {
+      val userName = "testUserName"
+      val repoName = "testRepoName"
+      val path = "anyPath"
+      val fileContent:FileContent = FileContent(
+        "FileContent",
+        "nonEmptySha",
+        "path"
+      )
+      when(mockGitHubServices.getGitRepoFileContent(eqTo("testUserName"), eqTo("testRepoName"),eqTo("anyPath"))(any()))
+        .thenReturn(EitherT.rightT(fileContent))
+      implicit val request:RequestHeader = FakeRequest(GET,  s"/Github/repo/content/$userName/$repoName/$path").withCSRFToken
+      val result: Future[Result] = testGitHubRepoController.getGitRepoFileContent(userName, repoName, path)(request)
+       status(result) mustBe OK
+
+
+    }
+    "return error with error message when error is returned by the service" in {
+      val userName = "testUserName"
+      val repoName = "testRepoName"
+      val path = "anyPath"
+
+      when(mockGitHubServices.getGitRepoFileContent(eqTo("testUserName"), eqTo("testRepoName"),eqTo("anyPath"))(any()))
+        .thenReturn(EitherT.leftT(APIError.BadAPIResponse(500, "Error with Github Response Data")))
+      implicit val request: FakeRequest[AnyContentAsEmpty.type]  = FakeRequest(GET,  s"/Github/repo/content/$userName/$repoName/$path")
+      val result = testGitHubRepoController.getGitRepoFileContent(userName, repoName, path)(request)
+      status(result) mustBe INTERNAL_SERVER_ERROR
+    }
+  }
   "GitHubRepoController.openGitDir" should {
     "return 200 Ok when the directory  are successfully retrieved by service " in {
       val userName = "testUserName"
@@ -250,9 +251,11 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val userName = "testUser"
       val repoName = "testRepo"
       val path =  Some("testPath")
-      val request = FakeRequest(POST, s"/GitHub/createFileController/showForm/$userName/$repoName/")
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(POST, s"/GitHub/createFileController/showForm/$userName/$repoName/")
         .withFormUrlEncodedBody(invalidCreateForm.toSeq: _*)
       val result = testGitHubRepoController.createFile(userName, repoName, path)(request)
+      val boundForm = createForm.bindFromRequest()
+      boundForm.hasErrors mustBe true
       status(result) mustBe BAD_REQUEST
       contentAsString(result) must include("Data not avail:")
 
@@ -261,41 +264,174 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       // Mock the gitService.deleteDirectoryOrFile method to return a successful result
       val userName = "user"
       val repoName = "repo"
-      val path = "path"
+      val path = Some("path")
       val fileName = "file.txt"
-
-      val validCreateForm = Map("message" -> "nonEmptyMessage", "content" -> "nonEmptyContent", "fileName" -> "file.txt")
-      when(mockGitHubServices.createFile(eqTo("user"), eqTo("repo"), eqTo("file.txt"), eqTo(validCreateForm),eqTo(path))(any()))
-        .thenReturn(EitherT.rightT("File deleted"))
+      val createFileModel:CreateFileModel = CreateFileModel(
+        "nonEmptyMessage",
+        "nonEmptyContent",
+        "file.txt"
+      )
+      when(mockGitHubServices.createFile(eqTo("user"), eqTo("repo"), eqTo("file.txt"), eqTo(createFileModel),eqTo(path))(any()))
+        .thenReturn(EitherT.rightT("Some file content"))
       // Simulate a valid form submission
-      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(GET, s"/GitHub/repos/$userName/$repoName/$path/$fileName").withFormUrlEncodedBody("message" -> "Commit message", "sha" -> "someSha")
-      val boundForm = deleteForm.bindFromRequest()
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(POST, s"/GitHub/createFileController/showForm/$userName/$repoName/")
+        .withFormUrlEncodedBody( "message" -> "nonEmptyMessage",
+          "content" -> "nonEmptyContent",
+          "fileName" -> "file.txt")
+      val boundForm = createForm.bindFromRequest()
       boundForm.hasErrors mustBe false
-      val result: Future[Result] = testGitHubRepoController.deleteDirectoryOrFile(userName, repoName,path, fileName)(request)
-
+      val result: Future[Result] = testGitHubRepoController.createFile(userName, repoName,path)(request)
       // Assert the status and content of the response
       status(result) mustBe CREATED
-      contentAsString(result) must include("file.txt has been deleted, returned data is File deleted")
+      contentAsString(result) must include("Some file content")
     }
-    "return appropriate status and error message when the service returns an error " in {
+    "return 404 status when the user is not found in GitHub " in {
+      // Mock the gitService.deleteDirectoryOrFile method to return a successful result
       val userName = "user"
       val repoName = "repo"
-      val path = "path"
+      val path = Some("path")
       val fileName = "file.txt"
-      val formData = DeleteModel("Commit message", "someSha")
-      when(mockGitHubServices.deleteDirectoryOrFile(any(), any(), any(), eqTo(formData))(any()))
+      val createFileModel:CreateFileModel = CreateFileModel(
+        "nonEmptyMessage",
+        "nonEmptyContent",
+        "file.txt"
+      )
+      when(mockGitHubServices.createFile(eqTo("user"), eqTo("repo"), eqTo("file.txt"), eqTo(createFileModel),eqTo(path))(any()))
+        .thenReturn(EitherT.leftT(APIError.NotFoundError(404, "User not found in Github")))
+      // Simulate a valid form submission
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(POST, s"/GitHub/createFileController/showForm/$userName/$repoName/")
+        .withFormUrlEncodedBody( "message" -> "nonEmptyMessage",
+          "content" -> "nonEmptyContent",
+          "fileName" -> "file.txt")
+      val boundForm = createForm.bindFromRequest()
+      boundForm.hasErrors mustBe false
+      val result: Future[Result] = testGitHubRepoController.createFile(userName, repoName,path)(request)
+      // Assert the status and content of the response
+      status(result) mustBe NOT_FOUND
+      contentAsString(result) must include("User not found in Github")
+    }
+    "return 500 status when there is Error in GitHub Response Data " in {
+      // Mock the gitService.deleteDirectoryOrFile method to return a successful result
+      val userName = "user"
+      val repoName = "repo"
+      val path = Some("path")
+      val fileName = "file.txt"
+      val createFileModel:CreateFileModel = CreateFileModel(
+        "nonEmptyMessage",
+        "nonEmptyContent",
+        "file.txt"
+      )
+      when(mockGitHubServices.createFile(eqTo("user"), eqTo("repo"), eqTo("file.txt"), eqTo(createFileModel),eqTo(path))(any()))
         .thenReturn(EitherT.leftT(APIError.BadAPIResponse(500, "Error with Github Response Data")))
       // Simulate a valid form submission
-      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(GET, s"/GitHub/repos/$userName/$repoName/$path/$fileName").withFormUrlEncodedBody("message" -> "Commit message", "sha" -> "someSha")
-      val boundForm = deleteForm.bindFromRequest()
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(POST, s"/GitHub/createFileController/showForm/$userName/$repoName/")
+        .withFormUrlEncodedBody( "message" -> "nonEmptyMessage",
+          "content" -> "nonEmptyContent",
+          "fileName" -> "file.txt")
+      val boundForm = createForm.bindFromRequest()
       boundForm.hasErrors mustBe false
-      val result: Future[Result] = testGitHubRepoController.deleteDirectoryOrFile(userName, repoName, path, fileName)(request)
-
+      val result: Future[Result] = testGitHubRepoController.createFile(userName, repoName,path)(request)
       // Assert the status and content of the response
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("Error with Github Response Data")
     }
   }
+  "GitHubRepoController.editContent" should {
+    " return 400 there is error in the UpdateForm " in {
+      val invalidUpdateForm = Map("message" -> "", "content" -> "nonEmptyContent", "sha" -> "file.txt", "path" -> "")
+      val userName = "testUser"
+      val repoName = "testRepo"
+      val path = "testPath"
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(GET ,s"/GitHub/editFile/editForm/$userName/$repoName/$path")
+        .withFormUrlEncodedBody(invalidUpdateForm.toSeq: _*)
+      val result = testGitHubRepoController.editContent(userName, repoName, path)(request)
+      val boundForm = createForm.bindFromRequest()
+      boundForm.hasErrors mustBe true
+      status(result) mustBe BAD_REQUEST
+      contentAsString(result) must include("Data not avail:")
+
+    }
+    " return 200 when the file is successfully Updated in GitHub" in {
+      // Mock the gitService.deleteDirectoryOrFile method to return a successful result
+      val userName = "user"
+      val repoName = "repo"
+      val path = "testPath"
+      val fileName = "file.txt"
+      val updateFileModel:UpdateFileModel = UpdateFileModel(
+        "nonEmptyMessage",
+        "nonEmptyContent",
+        "nonEmptySha",
+        "somePath"
+      )
+      when(mockGitHubServices.editContent(eqTo("user"), eqTo("repo"), eqTo("testPath"), eqTo(updateFileModel))(any()))
+        .thenReturn(EitherT.rightT("Some deleted Content"))
+      // Simulate a valid form submission
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(GET, s"/GitHub/createFileController/showForm/$userName/$repoName/$path")
+        .withFormUrlEncodedBody( "message" ->"nonEmptyMessage",
+          "content" -> "nonEmptyContent",
+          "sha" -> "nonEmptySha",
+          "path" -> "somePath")
+      val boundForm = updateForm.bindFromRequest()
+      boundForm.hasErrors mustBe false
+      val result: Future[Result] = testGitHubRepoController.editContent(userName, repoName,path)(request)
+      // Assert the status and content of the response
+      status(result) mustBe OK
+      contentAsString(result) must include("Some deleted Content")
+    }
+    "return 404 status when the user is not found in GitHub " in {
+      // Mock the gitService.deleteDirectoryOrFile method to return a successful result
+      val userName = "user"
+      val repoName = "repo"
+      val path = "testPath"
+      val updateFileModel:UpdateFileModel = UpdateFileModel(
+        "nonEmptyMessage",
+        "nonEmptyContent",
+        "nonEmptySha",
+        "somePath"
+      )
+      when(mockGitHubServices.editContent(eqTo("user"), eqTo("repo"), eqTo("testPath"), eqTo(updateFileModel))(any()))
+        .thenReturn(EitherT.leftT(APIError.NotFoundError(404, "User not found in Github")))
+      // Simulate a valid form submission
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(GET, s"/GitHub/createFileController/showForm/$userName/$repoName/$path")
+        .withFormUrlEncodedBody( "message" ->"nonEmptyMessage",
+          "content" -> "nonEmptyContent",
+          "sha" -> "nonEmptySha",
+          "path" -> "somePath")
+      val boundForm = updateForm.bindFromRequest()
+      boundForm.hasErrors mustBe false
+      val result: Future[Result] = testGitHubRepoController.editContent(userName, repoName,path)(request)
+      // Assert the status and content of the response
+      status(result) mustBe NOT_FOUND
+      contentAsString(result) must include("User not found in Github")
+    }
+    "return 500 status when there is Error in GitHub Response Data " in {
+      // Mock the gitService.deleteDirectoryOrFile method to return a successful result
+      val userName = "user"
+      val repoName = "repo"
+      val path = "testPath"
+      val updateFileModel:UpdateFileModel = UpdateFileModel(
+        "nonEmptyMessage",
+        "nonEmptyContent",
+        "nonEmptySha",
+        "somePath"
+      )
+      when(mockGitHubServices.editContent(eqTo("user"), eqTo("repo"), eqTo("testPath"), eqTo(updateFileModel))(any()))
+        .thenReturn(EitherT.leftT(APIError.BadAPIResponse(500, "Error with Github Response Data")))
+      // Simulate a valid form submission
+      implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest(GET, s"/GitHub/createFileController/showForm/$userName/$repoName/$path")
+        .withFormUrlEncodedBody( "message" ->"nonEmptyMessage",
+          "content" -> "nonEmptyContent",
+          "sha" -> "nonEmptySha",
+          "path" -> "somePath")
+      val boundForm = updateForm.bindFromRequest()
+      boundForm.hasErrors mustBe false
+      val result: Future[Result] = testGitHubRepoController.editContent(userName, repoName,path)(request)
+      // Assert the status and content of the response
+      status(result) mustBe INTERNAL_SERVER_ERROR
+      contentAsString(result) must include("Error with Github Response Data")
+    }
+  }
+
 
 }
 
