@@ -1,9 +1,22 @@
 @import helper._
-@(fileContent: Form[FileContent], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
+@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String)(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
-    <div class="file Content">
+
+    <div class="file-Content2">
+
+        <div class="header-Content">
+        <p class ="userName/repoName-Content">@userName / @repoName</p>
+        </div>
+        <div>
+        <p class ="fileName-Content">@fileName</p>
+        </div>
+
+
+    <div class="file-content">
         <pre>@fileContent("content").value</pre>
+
+
         <div class ="editContent-container">
         @if(userName.equals("GarysRobot")){
             <h1 class="title">Edit File</h1>
@@ -21,7 +34,13 @@
             </div>
         }
         </div>
+
+        <button class="repo-buttons"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repoName)">Return to Repository</a></button>
+
+
+        <button class="buttons goBack">Go Back</button>
         <img class="robot-right" src="@routes.Assets.versioned("images/teach-robot.png")" alt="robot teaching scala on a blackboard"/>
+
     </div>
 
 }

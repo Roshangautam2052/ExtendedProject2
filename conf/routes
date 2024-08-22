@@ -53,6 +53,3 @@ POST          /GitHub/createFileController/showForm/:userName/:repoName/        
 GET           /GitHub/editFile/showForm/:userName/:repoName/:path                          controllers.GitHubRepoController.displayEditContent(userName, repoName, path)
 GET           /GitHub/editFile/editForm/:userName/:repoName/:path                          controllers.GitHubRepoController.editContent(userName, repoName, path)
 
-
-
-
