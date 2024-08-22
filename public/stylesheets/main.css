@@ -446,7 +446,16 @@ display: none;
 }
 
 /*------------------------------- Success Page */
+.success-container {
+    margin: auto;
 
+
+}
+.loading-image {
+    height: 80px;
+    width: auto;
+
+}
 .hidden {
     display: none;
 }

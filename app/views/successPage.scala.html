@@ -1,7 +1,7 @@
 @(message: String, userName: String, repo: String)(implicit request: RequestHeader, messages: Messages)
 
     @main("Success") {
-        <div class="container">
+        <div class="success-container">
             <div id="success" class="hidden">
                 <div class="alert alert-success">
                     <h2>@message</h2>
@@ -11,10 +11,14 @@
                         <a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repo)">Return to Repository</a>
                     </button>
                 </div>
+
             </div>
             <div id="loading">
-                <img src="@routes.Assets.versioned("/images/loading.gif")" alt="loading image">
+                <img src="@routes.Assets.versioned("/images/loading.gif")" alt="loading image" class = "loading-image">
                 <p>Loading....</p>
+                <div id ="error-details" class="error-details hidden">
+                    <p><strong>Status Code:</strong> @message</p>
+                </div>
             </div>
         </div>
     }
