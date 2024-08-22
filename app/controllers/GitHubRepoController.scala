@@ -101,7 +101,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
     createForm.bindFromRequest().fold(
       formWithErrors => {
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the create form."))))
       },
       formData => {
         gitService.createFile(userName, repo, formData.fileName, formData, path).value.map {
@@ -118,7 +118,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formWithErrors => {
         //here write what you want to do if the form has errors
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the Edit form."))))
       },
       formData => {
         gitService.editContent(userName, repoName, path, formData).value.map {
@@ -137,7 +137,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formWithErrors => {
         //here write what you want to do if the form has errors
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the Edit form."))))
       },
       formData => {
         val filledForm = updateForm.fill(UpdateFileModel("", formData.content, formData.sha, formData.path))

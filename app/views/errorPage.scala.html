@@ -15,16 +15,8 @@
             <button class="buttons goBack">Go Back</button>
         </div>
     </div>
-    @if(statusCode.equals(INTERNAL_SERVER_ERROR) ){
         <img class="robot-left" src="@routes.Assets.versioned("images/sad-robot.png")" alt="sad-robot-internal-server"/>
-
-    } else if (statusCode.equals(400)) {
-    <img class="robot-left" src="@routes.Assets.versioned("images/sad-robot-2.png")" alt="sad-robot-Bad Request"/>
-
-    }
-    <img class="robot-left" src="@routes.Assets.versioned("images/sad-robot.png")" alt="sad-robot-Other Errors"/>
-
-
-
-
 }
+
+
+
