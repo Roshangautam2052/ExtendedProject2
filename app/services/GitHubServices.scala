@@ -10,7 +10,8 @@ import play.api.libs.json._
 import java.time.ZonedDateTime
 import java.util.Base64
 import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.{Await, ExecutionContext, Future}
 
 @Singleton
 class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubServiceTrait {
@@ -57,7 +58,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
         } else {
 
           val repos = arr.value.map { item =>
-            val userName = (item \"owner" \ "login").as[String]
+            val userName = (item \ "owner" \ "login").as[String]
             val name = (item \ "name").as[String]
             val language = (item \ "language").asOpt[String]
             val pushedAt = (item \ "pushed_at").as[String]
@@ -97,12 +98,12 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
             val path = (item \ "path").as[String]
-            val sha = (item \ "sha"). as[String]
+            val sha = (item \ "sha").as[String]
 
-          FilesAndDirsModel(name,sha, format, path)
-        }.toSeq
-        Right(contents)
-    }
+            FilesAndDirsModel(name, sha, format, path)
+          }.toSeq
+          Right(contents)
+        }
 
 
       case obj: JsObject =>
@@ -137,12 +138,12 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
             val name = (item \ "name").as[String]
             val format = (item \ "type").as[String]
             val path = (item \ "path").as[String]
-            val sha = (item \ "sha"). as[String]
+            val sha = (item \ "sha").as[String]
 
-          FilesAndDirsModel(name,sha, format, path)
-        }.toSeq
-        Right(contents)
-    }
+            FilesAndDirsModel(name, sha, format, path)
+          }.toSeq
+          Right(contents)
+        }
 
 
       case obj: JsObject =>
@@ -157,11 +158,11 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
     }
   }
 
-  def getGitRepoFileContent(userName: String, repoName: String, path:String)(implicit ex: ExecutionContext): EitherT[Future, APIError, FileContent] = {
+  def getGitRepoFileContent(userName: String, repoName: String, path: String)(implicit ex: ExecutionContext): EitherT[Future, APIError, FileContent] = {
     val url = s"https://api.github.com/repos/$userName/$repoName/contents/$path"
     connector.get[JsValue](url)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
-    }.subflatMap {json =>
+    }.subflatMap { json =>
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
@@ -169,9 +170,9 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
 
         case Some(item) =>
           val file: String = (item \ "content").as[String]
-          val clean64 = file.replaceAll("\\s","")
+          val clean64 = file.replaceAll("\\s", "")
           val path = (item \ "path").as[String]
-          val sha = (item \ "sha"). as[String]
+          val sha = (item \ "sha").as[String]
           val decodedFile = Base64.getDecoder.decode(clean64)
           val textDecoded = new String(decodedFile, "UTF-8")
           Right(FileContent(textDecoded, sha, path))
@@ -184,7 +185,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
 
   }
 
-  def deleteDirectoryOrFile(userName: String, repo: String, path: String, formData: DeleteModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+  def deleteDirectoryOrFile(userName: String, repo: String, path: String, formData: DeleteModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
     val url = s"https://api.github.com/repos/$userName/$repo/contents/$path"
 
     val body = Json.obj(
@@ -194,7 +195,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
 
     connector.delete[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
-    }.subflatMap {json =>
+    }.subflatMap { json =>
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
@@ -220,7 +221,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
     }
   }
 
-  def createFile(userName: String, repo: String, fileName: String, formData: CreateFileModel, path:Option[String])(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+  def createFile(userName: String, repo: String, fileName: String, formData: CreateFileModel, path: Option[String])(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
     val url = path match {
       case Some(path) => s"https://api.github.com/repos/$userName/$repo/contents/$path/$fileName"
       case None => s"https://api.github.com/repos/$userName/$repo/contents/$fileName"
@@ -235,7 +236,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
 
     connector.create[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
-    }.subflatMap {json =>
+    }.subflatMap { json =>
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
@@ -251,10 +252,10 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
     }
   }
 
-  def editContent(userName: String, repoName: String, path: String, formData: UpdateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] ={
+  def editContent(userName: String, repoName: String, path: String, formData: UpdateFileModel)(implicit ex: ExecutionContext): EitherT[Future, APIError, String] = {
 
 
-    val url =  s"https://api.github.com/repos/$userName/$repoName/contents/${formData.path}"
+    val url = s"https://api.github.com/repos/$userName/$repoName/contents/${formData.path}"
 
     val encodedFormContent = Base64.getEncoder.encodeToString(formData.content.getBytes)
 
@@ -266,11 +267,10 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
 
     connector.create[JsValue](url, body)(Reads.JsValueReads, ex).leftMap {
       case APIError.BadAPIResponse(code, msg) => APIError.BadAPIResponse(code, msg)
-    }.subflatMap {json =>
+    }.subflatMap { json =>
       json.asOpt[JsObject] match {
 
         case Some(item) if (item \ "status").asOpt[String].contains("404") =>
-
           Left(APIError.NotFoundError(404, "File, user or repo does not exist to delete"))
 
         case Some(item) if (item \ "status").asOpt[String].contains("409") =>
@@ -282,23 +282,28 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
           Left(APIError.NotModified(422, message))
 
 
-
         case Some(item) =>
-          val result = if(path != formData.path) {
+          val result: EitherT[Future, APIError, String] = if (path != formData.path) {
             val deleteModel = DeleteModel(message = s"Delete Duplication ${formData.message}", sha = formData.sha)
-            deleteDirectoryOrFile(userName, repoName, path, deleteModel)
+
+            val response = deleteDirectoryOrFile(userName, repoName, path, deleteModel).value.flatMap {
+              case Right(_) =>
+                Future.successful(Right(item.toString()))
+              case Left(error) =>
+                Future.successful(Left(APIError.BadAPIResponse(500, "File Duplicated, error with duplicate file update")))
+            }
+
+            EitherT(response)
+          } else {
+            EitherT.rightT(item.toString()) // Paths are equal, return the item without attempting to delete
           }
 
-          result match {
-            case Right(value) => Right(item.toString())
-            case Left(error) => Left(APIError.BadAPIResponse(500, s"$error"))
-          }
-
+          Await.result(result.value, 10.seconds)
 
         case None =>
-          Left(APIError.BadAPIResponse(500, "Error with Github Response Data"))
+          Left(APIError.BadAPIResponse(500, "Error with GitHub Response Data"))
+
       }
     }
   }
-
 }

@@ -8,6 +8,7 @@ import models.FileContent.editForm
 import models.UpdateFileModel.updateForm
 import play.api
 import play.api.libs.json.Json
+import play.api.mvc.Results.Redirect
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
 import play.filters.csrf.CSRF
 import services.{GitHubServiceTrait, GitHubServices, RepositoryServices}
@@ -40,7 +41,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       },
       formData => {
         gitService.deleteDirectoryOrFile(userName, repo, path, formData).value.map {
-          case Right(delete) => Created(Json.toJson(s"$fileName has been deleted, returned data is $delete"))
+          case Right(delete) => Created(views.html.successPage(s"${path} successfully deleted!", userName, repo))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       })
@@ -95,9 +96,8 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
       },
       formData => {
-
         gitService.createFile(userName, repo, formData.fileName, formData, path).value.map {
-          case Right(content) => Created(Json.toJson(content))
+          case Right(content) => Created(views.html.successPage(s"${formData.fileName} successfully created!", userName, repo))
           case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
         }
       })
@@ -114,7 +114,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       },
       formData => {
         gitService.editContent(userName, repoName, path, formData).value.map {
-          case Right(contents) => Ok(Json.toJson(contents))
+          case Right(contents) => Ok(views.html.successPage(s"${formData.path} successfully updated!", userName, repoName))
           case Left(error) => Status(error.httpResponseStatus)(error.reason)
 
         }
