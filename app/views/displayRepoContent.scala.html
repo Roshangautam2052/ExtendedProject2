@@ -6,11 +6,6 @@
     <h1>Repository Files & Folders</h1>
 </div>
 <div class="public-repos-container">
-    @if(userName.equals("GarysRobot") && path.isDefined){
-        <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, path)">Add File</a></button>
-    } else if (userName.equals("GarysRobot")) {
-    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, None)">Add File</a></button>
-     }
     @repoContents.map { repoContentsSeq =>
     @if(repoContentsSeq.nonEmpty) {
     @for(repoContent <- repoContentsSeq) {
@@ -45,11 +40,15 @@
     }
 
 </div>
-
 <div class="display-repo-btn">
-    <button class="buttons">Go Back Not actioned!</button>
+    @if(userName.equals("GarysRobot") && path.isDefined){
+        <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, path)">Add File</a></button>
+    } else if (userName.equals("GarysRobot")) {
+    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, None)">Add File</a></button>
+    }
+    <button class="buttons goBack">Go Back</button>
 </div>
 
-<img class="waving-robot" src="@routes.Assets.versioned("images/file-robot.png")" alt="robot waving"/>
+<img class="robot-left inverted" src="@routes.Assets.versioned("images/file-robot.png")" alt="robot holding a clip board"/>
 }
 
