@@ -322,9 +322,6 @@ color: #fff
     transition: transform 0.2s ease-in-out;
 }
 
-.content-btn {
-}
-
 .icon {
 height: 50px;
 width: auto;
@@ -373,7 +370,35 @@ width: auto;
 }
 
 
-/*------------------------------- Edit Pages / create */
+/*------------------------------- File Content */
+
+.view-content-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.file-name {
+    margin: 10px;
+}
+
+
+.file-container {
+    align-items: center;
+    background-color: #153244;
+    width: 400px;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.file-content {
+    background-color: #dcdcdc;
+    color: #0056b3;
+    padding: 5px;
+    border-radius: 5px;
+    text-align: left;
+    padding: 10px;
+}
+/*------------------------------- Edit / create Pages */
 
 .edit-form-container {
     background-color: #153244;

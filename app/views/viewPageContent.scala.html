@@ -3,45 +3,36 @@
 
 @main("File Content") {
 
-    <div class="file-Content2">
-
-        <div class="header-Content">
-        <p class ="userName/repoName-Content">@userName / @repoName</p>
-        </div>
-        <div>
-        <p class ="fileName-Content">@fileName</p>
-        </div>
-
-
-    <div class="file-content">
-        <pre>@fileContent("content").value</pre>
-
-
-        <div class ="editContent-container">
-        @if(userName.equals("GarysRobot")){
-            <h1 class="title">Edit File</h1>
-            <div class="edit-form-container">
-                <div class="edit-form">
-                    @helper.form(action = routes.GitHubRepoController.displayEditContent(userName, repoName, path)) {
-
-                    @helper.CSRF.formField
-                    <input type="hidden" name="content" value='@fileContent("content").value.getOrElse("")' />
-                    <input type="hidden" name="sha" value='@fileContent("sha").value.getOrElse("")' />
-                    <input type="hidden" name="path" value='@fileContent("path").value.getOrElse("")' />
-                    <input class="buttons" type="submit" value="edit">
-                    }
-                </div>
-            </div>
-        }
-        </div>
-
-        <button class="repo-buttons"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repoName)">Return to Repository</a></button>
-
-
-        <button class="buttons goBack">Go Back</button>
-        <img class="robot-right" src="@routes.Assets.versioned("images/teach-robot.png")" alt="robot teaching scala on a blackboard"/>
-
+    <div class ="title">
+        <h1>@userName File Content</h1>
     </div>
+    <div class="view-content-container">
+        <div class="title" >
+            <h3 class ="title fileName-Content">@fileName</h3>
+        </div>
+        <div class="file-container">
+            <div class ="file-content">
+                <h5 class="file-name">@fileContent("content").value</h5>
+            @if(userName.equals("GarysRobot")){
+                <div class="file-content">
+                    <div class="">
+                        @helper.form(action = routes.GitHubRepoController.displayEditContent(userName, repoName, path)) {
+                        @helper.CSRF.formField
+                        <input type="hidden" name="content" value='@fileContent("content").value.getOrElse("")' />
+                        <input type="hidden" name="sha" value='@fileContent("sha").value.getOrElse("")' />
+                        <input type="hidden" name="path" value='@fileContent("path").value.getOrElse("")' />
+                        <input class="buttons" type="submit" value="Edit">
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+            <div class="btn-row">
+                <button class="buttons crt-btn"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repoName)">Repositories</a></button>
+                <button class="buttons goBack crt-btn">Go Back</button>
+            </div>
+        </div>
+        <img class="robot-right" src="@routes.Assets.versioned("images/teach-robot.png")" alt="robot teaching scala on a blackboard"/>
     </div>
 
 }
