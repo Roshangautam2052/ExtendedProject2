@@ -1,5 +1,5 @@
 @import helper._
-@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String)(implicit request: RequestHeader, messages: Messages)
+@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String, loggedInUser: Option[String])(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
 
@@ -18,7 +18,7 @@
 
 
         <div class ="editContent-container">
-        @if(userName.equals("GarysRobot")){
+        @if(loggedInUser.contains(userName)){
             <h1 class="title">Edit File</h1>
             <div class="edit-form-container">
                 <div class="edit-form">
