@@ -27,7 +27,7 @@ function delaySuccess() {
         // Hide loading and show success
         document.getElementById('loading').style.display = 'none';
         document.getElementById('success').style.display = 'block';
-    }, 5000); // 5000 milliseconds = 5 seconds
+    }, 5000);
 }
 
 window.onload = delaySuccess;
