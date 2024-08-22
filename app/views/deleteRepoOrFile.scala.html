@@ -10,12 +10,17 @@
             <div class="form">
             @helper.form(action = routes.GitHubRepoController.deleteDirectoryOrFile(userName, repoName, path, fileName)) {
                 @helper.CSRF.formField
-                @helper.inputText(deleteForm("message"))
+                <div class="field-cont">
+                    <div class="input-fields">
+                    <span>Commit Message:</span>
+                    @helper.inputText(deleteForm("message"), Symbol("placeholder") -> "Delete reason...")
+                    </div>
                 @helper.inputText(deleteForm("sha"), Symbol("type") -> "hidden")
                 <input class="buttons" type="submit" value="Submit">
+                </div>
                 }
             </div>
         </div>
     </div>
-    <img class="peace-robot" src="@routes.Assets.versioned("images/peace-robot.png")" alt="robot throwing peace signs"/>
+    <img class="robot-left" src="@routes.Assets.versioned("images/delete-robot.png")" alt="robot throwing peace signs"/>
 }

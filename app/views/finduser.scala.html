@@ -35,10 +35,8 @@
                 <p><strong>Has GitHub Account:</strong> @user.get.gitHubAccount</p>
             </div>
             <div class="btn-row">
-                <button class="buttons">Go Back</button>
                 <button class="buttons"><a href="@routes.GitHubRepoController.getGitHubRepos(user.get.userName)">Repositories</a> </button>
-                <button class="buttons">Edit User</button>
-                <button class="buttons">Delete User</button>
+                <button class="buttons goBack">Go Back</button>
             </div>
         </div>
     } else {
@@ -46,5 +44,5 @@
             <h2 class="not-found">No user found, try again.</h2>
             }
     }
-<img class="thumbs-up-robot" src="@routes.Assets.versioned("images/info-robot.png")" alt="robot giving thumbs up"/>
+<img class="robot-right" src="@routes.Assets.versioned("images/info-robot.png")" alt="robot giving thumbs up"/>
 }
