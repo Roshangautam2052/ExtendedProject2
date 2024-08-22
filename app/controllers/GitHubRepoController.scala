@@ -175,13 +175,9 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
           case Left(error) if error.httpResponseStatus == 404 =>
             gitService.getGitHubUser(userName).value.flatMap {
               case Right(dataModel) =>
-                repoService.createUser(dataModel).map {
-                  case Right(createdUser) =>
-                    DataModel.logIn(createdUser)
-                    val loggedin = DataModel.getCurrentUser
-                    Ok(views.html.index(None, loggedin))
-                  case Left(error) => NotFound(views.html.errorPage(error.httpResponseStatus, "Failed to create the user. Please try again later."))
-                }
+                DataModel.logIn(dataModel)
+                val loggedin = DataModel.getCurrentUser
+                Future.successful(Ok(views.html.index(None, loggedin)))
               case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
             }
           case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
