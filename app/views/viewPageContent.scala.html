@@ -1,5 +1,5 @@
 @import helper._
-@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String)(implicit request: RequestHeader, messages: Messages)
+@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String, loggedInUser: Option[String])(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
 
@@ -10,10 +10,11 @@
         <div class="title" >
             <h3 class ="title fileName-Content">@fileName</h3>
         </div>
+
         <div class="file-container">
             <div class ="file-content">
                 <h5 class="file-name">@fileContent("content").value</h5>
-            @if(userName.equals("GarysRobot")){
+            @if(loggedInUser.contains(userName)){
                 <div class="file-content">
                     <div class="">
                         @helper.form(action = routes.GitHubRepoController.displayEditContent(userName, repoName, path)) {
@@ -24,6 +25,7 @@
                         <input class="buttons" type="submit" value="Edit">
                         }
                     </div>
+
                 </div>
                 }
             </div>

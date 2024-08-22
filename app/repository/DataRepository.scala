@@ -43,16 +43,24 @@ class DataRepository @Inject()(
 ) with DataRepositoryTrait {
 
 
-  override def createUser(user:DataModel):Future[Either[ APIError, DataModel]] ={
-    val mappedUser= collection.insertOne(user).toFuture()
-    mappedUser.map { result =>
-        if(result.wasAcknowledged()) Right(user)
-        else Left(APIError.BadAPIResponse(500, s"Couldn't add $user to the database"))
-      }
-      .recover {
-        case exception: Throwable => Left(APIError.DatabaseError(500, s"Failed to insert user due to ${exception.getMessage}"))
-      }
+  override def createUser(user: DataModel): Future[Either[APIError, DataModel]] = {
+    val userExists =  collection.find(byName(user.userName)).toFuture()
+
+    userExists.flatMap {
+      case existingUsers if existingUsers.nonEmpty =>
+        Future.successful(Left(APIError.BadAPIResponse(409, s"User ${user.userName} already exists in the database")))
+
+      case _ =>
+        val mappedUser = collection.insertOne(user).toFuture()
+        mappedUser.map { result =>
+          if (result.wasAcknowledged()) Right(user)
+          else Left(APIError.BadAPIResponse(500, s"Couldn't add ${user.userName} to the database"))
+        }.recover {
+          case exception: Throwable => Left(APIError.DatabaseError(500, s"Failed to insert user due to ${exception.getMessage}"))
+        }
+    }
   }
+
 
 
   private def byName(userName: String): Bson = {

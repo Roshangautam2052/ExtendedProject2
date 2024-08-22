@@ -73,8 +73,12 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         } else {
           path
         }
-
-        Ok(views.html.viewPageContent(filledForm, userName, repoName, path, fileName))
+        val loggedInUser = DataModel.getCurrentUser
+        val loggedUserName = loggedInUser match {
+          case Some(user) => Some(user.userName)
+          case None => None
+        }
+        Ok(views.html.viewPageContent(filledForm, userName, repoName, path, fileName, loggedUserName))
       case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
 
     }
@@ -152,22 +156,10 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       })
   }
 
-  def displayLogIn(): Action[AnyContent] = Action.async { implicit request =>
-    val currentUser = DataModel.getCurrentUser
-    if(currentUser == None) {
-      Future.successful(Ok(views.html.login(userSearchForm, None)))
-    } else {
-      Future.successful(Ok(views.html.login(userSearchForm, currentUser)))
-    }
-  }
 
   def logOut(): Action[AnyContent] = Action.async { implicit request =>
-    val currentUser = DataModel.getCurrentUser
-    if(currentUser == None) {
-      Future.successful(Ok(views.html.login(userSearchForm, None)))
-    } else {
-      Future.successful(Ok(views.html.login(userSearchForm, currentUser)))
-    }
+    DataModel.logOut()
+    Future.successful(Redirect(routes.HomeController.index))
   }
 
   def loginAUser(): Action[AnyContent] = Action.async { implicit request =>
@@ -179,17 +171,13 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
           case Right(user) =>
             DataModel.logIn(user)
             val loggedin = DataModel.getCurrentUser
-            Future.successful(Ok(views.html.login(UserSearchParameter.userSearchForm, loggedin)))
+            Future.successful(Ok(views.html.index(None, loggedin)))
           case Left(error) if error.httpResponseStatus == 404 =>
             gitService.getGitHubUser(userName).value.flatMap {
               case Right(dataModel) =>
-                repoService.createUser(dataModel).map {
-                  case Right(createdUser) =>
-                    DataModel.logIn(createdUser)
-                    val loggedin = DataModel.getCurrentUser
-                    Ok(views.html.login(UserSearchParameter.userSearchForm, loggedin))
-                  case Left(error) => NotFound(views.html.errorPage(error.httpResponseStatus, "Failed to create the user. Please try again later."))
-                }
+                DataModel.logIn(dataModel)
+                val loggedin = DataModel.getCurrentUser
+                Future.successful(Ok(views.html.index(None, loggedin)))
               case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
             }
           case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))

@@ -43,7 +43,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       formData => {
         repoService.createUser(formData).map {
           case Right(createdUser) => Created(Json.toJson(createdUser))
-          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+          case Left(error) => BadRequest(views.html.errorPage(BAD_REQUEST, "This user already exists"))
         }
       }
     )

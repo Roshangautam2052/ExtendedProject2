@@ -1,5 +1,8 @@
 package controllers
 
+import models.DataModel
+import models.UserSearchParameter.userSearchForm
+
 import javax.inject._
 import play.api._
 import play.api.mvc._
@@ -9,7 +12,7 @@ import play.api.mvc._
  * application's home page.
  */
 @Singleton
-class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController {
+class HomeController @Inject()(val controllerComponents: ControllerComponents) extends BaseController with play.api.i18n.I18nSupport {
 
   /**
    * Create an Action to render an HTML page.
@@ -19,7 +22,7 @@ class HomeController @Inject()(val controllerComponents: ControllerComponents) e
    * a path of `/`.
    */
   def index: Action[AnyContent] = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index())
+    val loggedInUser = DataModel.getCurrentUser
+     Ok(views.html.index(Some(userSearchForm), loggedInUser))
   }
-
 }
