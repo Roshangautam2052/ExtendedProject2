@@ -1,16 +1,15 @@
 package controllers
 
 import models.CreateFileModel.createForm
-import models.DataModel.userForm
-import models.{DeleteModel, FileContent, UpdateFileModel}
 import models.DeleteModel.deleteForm
 import models.FileContent.editForm
 import models.UpdateFileModel.updateForm
+import models.{DeleteModel, FileContent, UpdateFileModel}
 import play.api
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Request}
+import play.api.mvc._
 import play.filters.csrf.CSRF
-import services.{GitHubServiceTrait, GitHubServices, RepositoryServices}
+import services.GitHubServiceTrait
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,12 +35,12 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formWithErrors => {
         //here write what you want to do if the form has errors
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
       },
       formData => {
         gitService.deleteDirectoryOrFile(userName, repo, path, formData).value.map {
           case Right(delete) => Created(Json.toJson(s"$fileName has been deleted, returned data is $delete"))
-          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+          case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
         }
       })
   }
@@ -52,7 +51,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
     accessToken
     gitService.getGitDirsAndFiles(userName, repoName).value.map {
       case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName))
-      case Left(error) => Status(error.httpResponseStatus)
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 
@@ -61,14 +60,14 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       case Right(contents) =>
         val filledForm = editForm.fill(FileContent(contents.content, contents.sha, contents.path))
         Ok(views.html.viewPageContent(filledForm, userName, repoName, path))
-      case Left(error) => Status(error.httpResponseStatus)
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 
   def openGitDir(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.openGitDir(userName, repoName, path).value.map {
       case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName, Some(path)))
-      case Left(error) => Status(error.httpResponseStatus)(error.reason)
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 
@@ -77,7 +76,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   def getGitHubRepos(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubRepo(userName).value.map {
       case Right(publicRepos) => Ok(views.html.displayUserRepos(Some(publicRepos)))
-      case Left(error) => Status(error.httpResponseStatus)(error.reason)
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 
@@ -92,13 +91,13 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
     createForm.bindFromRequest().fold(
       formWithErrors => {
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
       },
       formData => {
 
         gitService.createFile(userName, repo, formData.fileName, formData, path).value.map {
           case Right(content) => Created(Json.toJson(content))
-          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+          case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
         }
       })
   }
@@ -110,12 +109,12 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formWithErrors => {
         //here write what you want to do if the form has errors
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
       },
       formData => {
         gitService.editContent(userName, repoName, path, formData).value.map {
           case Right(contents) => Ok(Json.toJson(contents))
-          case Left(error) => Status(error.httpResponseStatus)(error.reason)
+          case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
 
         }
 
@@ -128,7 +127,7 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       formWithErrors => {
         //here write what you want to do if the form has errors
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+        Future.successful((BadRequest(views.html.errorPage(BAD_REQUEST, " Error in the delete form."))))
       },
       formData => {
         val filledForm = updateForm.fill(UpdateFileModel("", formData.content, formData.sha, formData.path))
