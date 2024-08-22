@@ -3,8 +3,13 @@
 
 @main("File Content") {
     <div class="file Content">
-        <h1>@fileContent("path").value</h1>
-        <h1>@fileName</h1>
+
+        <div class="header-Content">
+        <p class ="userName/repoName-Content">@userName / @repoName</p>
+        </div>
+        <div>
+        <p class ="fileName-Content">@fileName</p>
+        </div>
 
         <pre>@fileContent("content").value</pre>
 
