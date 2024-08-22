@@ -1,10 +1,13 @@
-// Updates the copyright year in footer with the current year
+document.addEventListener('DOMContentLoaded', (event) => {
+    delaySuccess();
+});
 const year = document.querySelector('#current-year');
 year.innerHTML = new Date().getFullYear();
 
 document.querySelector(".goBack").addEventListener("click", function() {
     window.history.go(-1);
 });
+
 document.getElementById('details-btn').addEventListener('click', function() {
     var details = document.getElementById('error-details');
     if (details.classList.contains('hidden')) {
@@ -15,3 +18,16 @@ document.getElementById('details-btn').addEventListener('click', function() {
         this.textContent = 'Details';
     }
 });
+
+function delaySuccess() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('success').style.display = 'none';
+
+    setTimeout(() => {
+        // Hide loading and show success
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+    }, 5000); // 5000 milliseconds = 5 seconds
+}
+
+window.onload = delaySuccess;

@@ -419,6 +419,11 @@ display: none;
     white-space: pre-wrap;
 }
 
+/*------------------------------- Success Page */
+
+.hidden {
+    display: none;
+}
 
 /*------------------------------- Footer */
 
