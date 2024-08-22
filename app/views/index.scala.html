@@ -14,7 +14,7 @@
 <!-- Conditionally display the search bar only if the form is present -->
 @userForm.map { form =>
 <div class="search-container">
-  <h1 class="find-title">Login:</h1>
+  <h2 class="find-title">Login:</h2>
 
   <form action="@routes.GitHubRepoController.loginAUser()" method="GET" class="form-inline">
     <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="userName" required>
@@ -59,6 +59,4 @@
 <h2 class="not-found">No user found, try again.</h2>
 }
 }
-
-<img class="robot-right" src="@routes.Assets.versioned("images/info-robot.png")" alt="robot giving thumbs up"/>
 }

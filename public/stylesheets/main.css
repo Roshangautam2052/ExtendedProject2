@@ -105,7 +105,8 @@ color: #fff;
 /*------------------------------- Home Page */
 
 .home-page-container {
-    margin: 20px auto auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .home-page-container h1 {
@@ -188,7 +189,7 @@ color: #fff;
 /*------------------------------- Find User */
 
 .find-title {
-    margin: 20px auto 40px;
+    margin:auto;
 }
 
 .user-details-container {
