@@ -16,7 +16,7 @@
                 <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
                 @repoContent.name
 
-                @if(loggedInUser.isDefined && loggedInUser.equals(userName)){
+                @if(loggedInUser.contains(userName)){
                     <button class="buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName, repoName, repoContent.sha,
                         repoContent.path, repoName)">Delete</a></button>
                 }
@@ -42,9 +42,9 @@
 
 </div>
 <div class="display-repo-btn">
-    @if(userName.equals("GarysRobot") && path.isDefined){
+    @if(loggedInUser.contains(userName) && path.isDefined){
         <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, path)">Add File</a></button>
-    } else if (userName.equals("GarysRobot")) {
+    } else if (loggedInUser.contains(userName)) {
     <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, None)">Add File</a></button>
     }
     <button class="buttons goBack">Go Back</button>
