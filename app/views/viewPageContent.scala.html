@@ -1,9 +1,14 @@
 @import helper._
-@(fileContent: Form[FileContent], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
+@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String)(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
     <div class="file Content">
+        <h1>@fileContent("path").value</h1>
+        <h1>@fileName</h1>
+
         <pre>@fileContent("content").value</pre>
+
+
         <div class ="editContent-container">
             <h1 class="title">Edit File</h1>
             <div class="edit-form-container">
@@ -19,6 +24,9 @@
                 </div>
             </div>
         </div>
+
+        <button class="repo-buttons"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repoName)">Return to Repository</a></button>
+
     </div>
 
 }

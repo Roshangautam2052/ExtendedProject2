@@ -61,7 +61,14 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
     gitService.getGitRepoFileContent(userName, repoName, path).value.map {
       case Right(contents) =>
         val filledForm = editForm.fill(FileContent(contents.content, contents.sha, contents.path))
-        Ok(views.html.viewPageContent(filledForm, userName, repoName, path))
+
+        val fileName = if (contents.path.contains("/")) {
+          path.substring(contents.path.lastIndexOf("/") + 1)
+        } else {
+          path
+        }
+
+        Ok(views.html.viewPageContent(filledForm, userName, repoName, path, fileName))
       case Left(error) => Status(error.httpResponseStatus)
     }
   }
