@@ -38,7 +38,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       formWithErrors => {
         //here write what you want to do if the form has errors
         api.Logger(s"Form submission errors: ${formWithErrors.errors}")
-        Future.successful(BadRequest(s"Data not avail: ${formWithErrors}"))
+        Future.successful(BadRequest(views.html.errorPage(BAD_REQUEST, "There is an error in the submitted form.")))
       },
       formData => {
         repoService.createUser(formData).map {
@@ -53,7 +53,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   def readDatabaseOrAddFromGithub(): Action[AnyContent] = Action.async { implicit request =>
     UserSearchParameter.userSearchForm.bindFromRequest().fold(
-      formWithErrors => Future.successful(BadRequest(views.html.finduser(formWithErrors, None))),
+      formWithErrors => Future.successful(BadRequest(views.html.errorPage(BAD_REQUEST, " There is error in the form."))),
       userData => {
         val userName = userData.userName
         repoService.readUser(userName).flatMap {
@@ -63,11 +63,11 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
               case Right(dataModel) =>
                 repoService.createUser(dataModel).map {
                   case Right(createdUser) => Ok(views.html.finduser(UserSearchParameter.userSearchForm, Some(createdUser)))
-                  case Left(error) => Status(error.httpResponseStatus)(views.html.finduser(UserSearchParameter.userSearchForm, None))
+                  case Left(error) => NotFound(views.html.errorPage(error.httpResponseStatus, error.reason))
                 }
-              case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.finduser(UserSearchParameter.userSearchForm, None)))
+              case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
             }
-          case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.finduser(UserSearchParameter.userSearchForm, None)))
+          case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
         }
       }
     )
@@ -78,18 +78,16 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       case JsSuccess(userModel, _) =>
         repoService.createUser(userModel).map {
           case Right(createdUser) => Created(Json.toJson(createdUser))
-          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+          case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
         }
-      case JsError(_) => Future(BadRequest {
-        Json.toJson(s"Invalid Body: ${request.body}")
-      })
+      case JsError(_) => Future((BadRequest(views.html.errorPage(BAD_REQUEST, " There is error in the body."))))
     }
   }
 
   def deleteDatabaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     repoService.deleteDatabaseUser(userName).map {
       case Right(deletedUser) => Accepted(Json.toJson(s"Successfully deleted ${userName}"))
-      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 
@@ -98,11 +96,9 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       case JsSuccess(userModel, _) =>
         repoService.updateUser(userName, userModel).map {
           case Right(updatedUser) => Accepted(Json.toJson(s"Successfully updated ${userName}"))
-          case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+          case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
         }
-      case JsError(_) => Future(BadRequest {
-        Json.toJson(s"Invalid Body: ${request.body}")
-      })
+      case JsError(_) => Future((BadRequest(views.html.errorPage(BAD_REQUEST, " There is error in the form body."))))
     }
   }
 
@@ -114,14 +110,14 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
   def getGitHubUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     gitService.getGitHubUser(userName).value.map {
       case Right(dataModel) => Ok(Json.toJson(dataModel))
-      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 
   def readDataBaseUser(userName: String): Action[AnyContent] = Action.async { implicit request =>
     repoService.readUser(userName).map {
       case Right(user) => Ok(Json.toJson(user))
-      case Left(error) => Status(error.httpResponseStatus)(Json.toJson(error.reason))
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
 

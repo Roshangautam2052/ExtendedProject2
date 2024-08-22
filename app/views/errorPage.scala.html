@@ -1,0 +1,30 @@
+
+@import play.api.http.Status.INTERNAL_SERVER_ERROR
+@(statusCode:Int, errorMessage:String)(implicit request: RequestHeader, messages: Messages)
+@main("Error Page") {
+    <div class = "error-container">
+        <h1>@messages("Oops! Something went wrong." )</h1>
+        <p>@errorMessage</p>
+        <div id ="error-details" class="error-details hidden">
+            <p><strong>Status Code:</strong> @statusCode</p>
+            <p><strong>Error Message:</strong> @errorMessage</p>
+
+        </div>
+        <div class = "buttons-container">
+            <button id="details-btn" class="buttons">Error Details</button>
+            <button class="buttons goBack">Go Back</button>
+        </div>
+    </div>
+    @if(statusCode.equals(INTERNAL_SERVER_ERROR) ){
+        <img class="robot-left" src="@routes.Assets.versioned("images/sad-robot.png")" alt="sad-robot-internal-server"/>
+
+    } else if (statusCode.equals(400)) {
+    <img class="robot-left" src="@routes.Assets.versioned("images/sad-robot-2.png")" alt="sad-robot-Bad Request"/>
+
+    }
+    <img class="robot-left" src="@routes.Assets.versioned("images/sad-robot-3.png")" alt="sad-robot-Other Errors"/>
+
+
+
+
+}
