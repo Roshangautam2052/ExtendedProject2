@@ -35,10 +35,8 @@
                 <p><strong>Has GitHub Account:</strong> @user.get.gitHubAccount</p>
             </div>
             <div class="btn-row">
-                <button class="buttons">Go Back</button>
                 <button class="buttons"><a href="@routes.GitHubRepoController.getGitHubRepos(user.get.userName)">Repositories</a> </button>
-                <button class="buttons">Edit User</button>
-                <button class="buttons">Delete User</button>
+                <button class="buttons goBack">Go Back</button>
             </div>
         </div>
     } else {

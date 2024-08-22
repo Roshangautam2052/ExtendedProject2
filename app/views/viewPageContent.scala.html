@@ -2,7 +2,7 @@
 @(fileContent: Form[FileContent], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
 
 @main("File Content") {
-    <div class="file Content">
+    <div class="file-content">
         <pre>@fileContent("content").value</pre>
         <div class ="editContent-container">
         @if(userName.equals("GarysRobot")){
@@ -21,6 +21,7 @@
             </div>
         }
         </div>
+        <button class="buttons goBack">Go Back</button>
         <img class="robot-right" src="@routes.Assets.versioned("images/teach-robot.png")" alt="robot teaching scala on a blackboard"/>
     </div>
 
