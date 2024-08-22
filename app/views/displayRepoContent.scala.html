@@ -1,5 +1,5 @@
 
-@(repoContents: Option[Seq[FilesAndDirsModel]], userName: String, repoName: String, path:Option[String] = None)(implicit request: RequestHeader, messages: Messages)
+@(repoContents: Option[Seq[FilesAndDirsModel]], userName: String, repoName: String, path:Option[String] = None, loggedInUser: Option[String]= None) (implicit request: RequestHeader, messages: Messages)
 
 @main("Display Repo Contents") {
 <div class="content-title">
@@ -15,7 +15,8 @@
             <a href="@routes.GitHubRepoController.getGitRepoFileContent(userName, repoName, repoContent.path)">
                 <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
                 @repoContent.name
-                @if(userName.equals("GarysRobot")){
+
+                @if(loggedInUser.isDefined && loggedInUser.equals(userName)){
                     <button class="buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName, repoName, repoContent.sha,
                         repoContent.path, repoName)">Delete</a></button>
                 }

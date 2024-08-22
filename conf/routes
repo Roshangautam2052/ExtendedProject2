@@ -35,6 +35,8 @@ POST          /addUser/form                                                     
 
 GET           /findUser                                                                    controllers.ApplicationController.findUser()
 
+GET           /login                                                                       controllers.GitHubRepoController.displayLogIn()
+GET           /login/read                                                                  controllers.GitHubRepoController.loginAUser()
 
 GET           /Github/repo/:userName                                                       controllers.GitHubRepoController.getGitHubRepos(userName)
 GET           /Github/repo/content/:userName/:repoName                                     controllers.GitHubRepoController.getGitDirsAndFiles(userName, repoName)

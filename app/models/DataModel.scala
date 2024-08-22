@@ -17,6 +17,20 @@ case class DataModel(
 }
 object DataModel{
   implicit val formats: OFormat[DataModel] = Json.format[DataModel]
+
+  private var currentUser: Option[DataModel] = None
+
+
+  def logIn(user: DataModel): Unit = {
+    currentUser = Some(user)
+  }
+
+  def getCurrentUser: Option[DataModel] = currentUser
+
+  def logOut(): Unit = {
+    currentUser = None
+  }
+
   val userForm: Form[DataModel] = Form(
     mapping(
       "userName" -> nonEmptyText,
