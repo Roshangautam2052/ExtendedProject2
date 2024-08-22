@@ -85,8 +85,13 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   }
 
   def openGitDir(userName: String, repoName: String, path: String): Action[AnyContent] = Action.async { implicit request =>
+    val loggedInUser = DataModel.getCurrentUser
+    val loggedUserName = loggedInUser match {
+      case Some(user) => Some(user.userName)
+      case None => None
+    }
     gitService.openGitDir(userName, repoName, path).value.map {
-      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName, Some(path)))
+      case Right(contents) => Ok(views.html.displayRepoContent(Some(contents), userName, repoName, Some(path), loggedUserName))
       case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
     }
   }
