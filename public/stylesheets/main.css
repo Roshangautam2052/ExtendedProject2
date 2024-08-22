@@ -132,10 +132,6 @@ width: auto;
     min-height: 90vh;
 }
 
-.alert{
-    display: none;
-}
-
 /*------------------------------- Add User */
 
 .adduser-container {
@@ -446,18 +442,30 @@ display: none;
 }
 
 /*------------------------------- Success Page */
+#success {
+    text-align: center;
+}
+
 .success-container {
     margin: auto;
-
-
 }
 .loading-image {
     height: 80px;
     width: auto;
-
 }
 .hidden {
     display: none;
+}
+
+
+/*------------------------------- Delete */
+
+#sha_field {
+    display: none;
+}
+
+.delete-file-name {
+    margin-bottom: 10px;
 }
 
 /*------------------------------- Footer */

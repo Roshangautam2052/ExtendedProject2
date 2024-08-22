@@ -27,7 +27,7 @@ function delaySuccess() {
         // Hide loading and show success
         document.getElementById('loading').style.display = 'none';
         document.getElementById('success').style.display = 'block';
-    }, 15000);
+    }, 5000);
 }
 
 window.onload = delaySuccess;
