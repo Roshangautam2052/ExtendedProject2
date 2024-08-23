@@ -52,6 +52,6 @@ GET           /GitHub/deleteRepos/showForm/:userName/:repoName/:sha/:path/:fileN
 GET           /GitHub/createFile/showForm/:userName/:repoName/                             controllers.GitHubRepoController.displayCreateFileForm(userName, repoName, path:Option[String])
 POST          /GitHub/createFileController/showForm/:userName/:repoName/                   controllers.GitHubRepoController.createFile(userName, repoName, path:Option[String])
 
-GET           /GitHub/editFile/showForm/:userName/:repoName/:path                          controllers.GitHubRepoController.displayEditContent(userName, repoName, path)
-GET           /GitHub/editFile/editForm/:userName/:repoName/:path                          controllers.GitHubRepoController.editContent(userName, repoName, path)
+POST           /GitHub/editFile/showForm/:userName/:repoName/:path                          controllers.GitHubRepoController.displayEditContent(userName, repoName, path)
+POST           /GitHub/editFile/editForm/:userName/:repoName/:path                          controllers.GitHubRepoController.editContent(userName, repoName, path)
 
