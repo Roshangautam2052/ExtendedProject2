@@ -76,7 +76,7 @@ class DataRepository @Inject()(
           Right(deleteResult)
       }
       .recover{
-        case NonFatal(e) => Left(APIError.DatabaseError(500, s"An unexpected error happened: ${e.getMessage}"))
+        case NonFatal(e) => Left(APIError.DatabaseError(500, s"An unexpected error happened:${e.getMessage}"))
       }
     // TODO - SCG - we redeclare the error in repoService??
   }

@@ -2,13 +2,16 @@ package servicesSpec
 
 import cats.data.EitherT
 import connector.GitHubConnector
+import models.APIError.BadAPIResponse
 import models._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.Status.INTERNAL_SERVER_ERROR
 import play.api.libs.json.{JsNull, JsObject, JsValue, Json, OFormat}
+import play.api.test.Helpers.status
 import services._
 
 import java.time.LocalDate
@@ -567,7 +570,7 @@ class GithubServicesSpec extends AnyWordSpec with MockFactory with ScalaFutures 
         .once()
 
       whenReady(testService.editContent(userName, repoName, fileName, formData: UpdateFileModel).value) { result =>
-        result shouldBe Left(apiError)
+        result shouldBe Left(BadAPIResponse(500, "Error with GitHub Response Data"))
       }
     }
   }

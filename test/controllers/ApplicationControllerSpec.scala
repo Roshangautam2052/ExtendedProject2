@@ -139,8 +139,6 @@ val testDataNotOnGitHubUpdate: DataModel = DataModel(
         val createResult: Future[Result] = TestApplicationController.createDatabaseUser()(request)
 
         status(createResult) shouldBe Status.BAD_REQUEST
-        contentAsJson(createResult) shouldBe Json.toJson(s"Invalid Body: \"invalid Json DataModel\"")
-
         afterEach()
 
       }

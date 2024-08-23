@@ -47,7 +47,7 @@ class RepositoryServices @Inject() (dataRepository: DataRepositoryTrait)(implici
   def updateUser(userName: String, updatedUser: DataModel): Future[Either[APIError, result.UpdateResult]] = {
     dataRepository.updateUser(userName, updatedUser).map {
       case Right(result) if(result.getModifiedCount == 1) =>  Right(result)
-      case Right(result) if (result.getModifiedCount == 0) => Left(APIError.NotFoundError(404, s"${updatedUser.userName} not found to update"))
+      case Right(result) if (result.getModifiedCount == 0) => Left(APIError.NotFoundError(404, s"User not found to update"))
       case Left(error) => Left(APIError.DatabaseError(error.httpResponseStatus, error.upstreamMessage))
     }
   }
