@@ -6,7 +6,7 @@ import cats.data.EitherT
 import models.CreateFileModel.createForm
 import models.DeleteModel.deleteForm
 import models.UpdateFileModel.updateForm
-import models.{APIError, CreateFileModel, DeleteModel, FileContent, PublicRepoDetails, UpdateFileModel, FilesAndDirsModel}
+import models.{APIError, CreateFileModel, DeleteModel, FileContent, FilesAndDirsModel, PublicRepoDetails, UpdateFileModel}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.MockitoSugar
@@ -18,15 +18,16 @@ import play.api.mvc._
 import play.api.test.CSRFTokenHelper.CSRFFRequestHeader
 import play.api.test.Helpers.{GET, POST, contentAsString, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
-import services.GitHubServiceTrait
+import services.{GitHubServiceTrait, RepositoryServices}
 
 import scala.concurrent.Future
 
 class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
   val mockGitHubServices: GitHubServiceTrait = mock[GitHubServiceTrait]
   val stubbedControllerComponent: ControllerComponents = Helpers.stubControllerComponents()
+  val mockRepoServices: RepositoryServices = mock[RepositoryServices]
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
-  val testGitHubRepoController: GitHubRepoController = new GitHubRepoController(stubbedControllerComponent, mockGitHubServices)
+  val testGitHubRepoController: GitHubRepoController = new GitHubRepoController(stubbedControllerComponent, mockGitHubServices, mockRepoServices)
 
   "GitHubRepoController.deleteDirectoryOrFile" should {
     " return 400 there is error in the Form " in {
