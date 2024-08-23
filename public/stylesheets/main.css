@@ -1,0 +1,499 @@
+html, body {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  height: 100%;
+  margin: 0;
+}
+
+/*------------------------------- General */
+
+.title {
+    margin: 30px auto;
+    color: #153244;
+}
+
+.buttons {
+    color: #fff;
+    background-color: #153244;
+    border-radius: 5px;
+    padding: 10px 15px;
+    border: none;
+    text-decoration: none;
+    margin: 5px;
+}
+
+.buttons a {
+text-decoration: none;
+color: #fff;
+}
+
+.buttons:hover {
+    border: none;
+    text-decoration: none;
+    transform: scale(1.05);
+    background-color: #2c7093;
+    cursor: pointer;
+}
+
+
+/*------------------------------- NavBar */
+
+.navbar {
+    background-color: #153244;
+    padding: 10px 20px;
+}
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.nav-link {
+    color: white;
+    padding: 8px 15px;
+    text-decoration: none;
+    font-size: large;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+
+}
+
+/*------------------------------- Buttons */
+
+
+/*------------------------------- Robots */
+
+.cropped-robot-right {
+    position: fixed;
+    height: 300px;
+    bottom: 0;
+    right: 0;
+    width: auto;
+    margin-bottom: 70px;
+}
+
+.robot-right {
+    position: fixed;
+    height: 300px;
+    bottom: 0;
+    right: 0;
+    width: auto;
+    margin-bottom: 100px;
+    margin-right: 30px;
+}
+
+.robot-left {
+    position: fixed;
+    height: 300px;
+    bottom: 0;
+    left: 0;
+    width: auto;
+    margin-bottom: 100px;
+    margin-right: 30px;
+}
+
+.inverted {
+    transform: scaleX(-1);
+}
+
+
+
+/*------------------------------- Home Page */
+
+.home-page-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.home-page-container h1 {
+text-align: center;
+color: #153244
+}
+
+.logo {
+height: 400px;
+width: auto;
+}
+
+.robot-cont {
+
+
+}
+
+/*------------------------------- Main Body */
+
+.main-container {
+ display: flex;
+    flex-direction: column;
+    min-height: 90vh;
+}
+
+/*------------------------------- Add User */
+
+.adduser-container {
+    margin: 40px auto auto;
+    color: #153244;
+    text-align: center;
+}
+
+.form-container {
+background-color: #153244;
+width: 400px;
+padding: 10px;
+border-radius: 10px;
+color: #fff;
+}
+
+.form {
+    width: auto;
+    height: auto;
+    text-align: center
+}
+
+.form label {
+  display: none;
+}
+
+.field-cont {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+.input-fields {
+    display: flex;
+    align-items: center;
+}
+
+.input-fields span {
+    width: 150px;
+    text-align: right;
+    margin-right: 10px;
+}
+
+.input-fields input[type="text"] {
+    flex: 1;
+}
+
+.info {
+    display: none;
+}
+
+/*------------------------------- Find User */
+
+.find-title {
+    margin:auto;
+}
+
+.user-details-container {
+    margin: -150px auto auto;
+}
+
+.user-details-container h3 {
+color: #153244;
+}
+
+.btn-row {
+text-align: center;
+margin: 20px;
+}
+
+.search-container {
+    color: #153244;
+    margin: 40px auto auto;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+}
+
+.form-container p {
+padding-left: 15px;
+}
+
+.form-control {
+    width: 200px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-right: 10px;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+
+.crt-btn {
+    margin-bottom: 10px;
+    border: solid #2c7093 2px;
+}
+
+.crt-btn:hover {
+    border: solid #2c7093 2px;
+}
+
+.not-found {
+color: #153244;
+    margin: 100px auto auto;
+}
+
+/*------------------------------- Display Repos */
+
+
+.public-repos-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding: 20px;
+    margin: auto;
+}
+
+.repo-form-container {
+background-color: #153244;
+width: 400px;
+padding: 10px;
+border-radius: 10px;
+color: #fff;
+
+}
+
+.repo-form-container p {
+cursor: default;
+}
+
+.repo-form-container:hover {
+background-color: #2c7093;
+}
+
+.display-repo-btn {
+    margin: auto;
+    top: 0;
+}
+
+.repo-buttons {
+    color: #fff;
+    background-color: #153244;
+    border-radius: 5px;
+    padding: 10px 15px;
+    border: none;
+    text-decoration: none;
+}
+
+.repo-buttons a {
+text-decoration: none;
+color: #fff;
+}
+
+.repo-buttons:hover {
+    border: none;
+    text-decoration: none;
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+/*------------------------------- Display Repo Content */
+
+.content-title {
+    margin: 30px auto -80px;
+    padding-bottom: 80px;
+}
+
+.content-title h1 {
+color: #153244
+}
+
+.form-container p, a {
+text-decoration: none;
+color: #fff
+}
+
+.form-container a:hover {
+    transform: scale(1.05);
+    transition: transform 0.2s ease-in-out;
+}
+
+.icon {
+height: 50px;
+width: auto;
+}
+/*------------------------------- Error Container */
+.error-container {
+    text-align: center;
+    padding: 50px;
+    background-color:  #ffffff;
+    border: transparent;
+    border-radius: 0;
+    color: #153244;
+    max-width: 600px;
+    margin: 100px auto;
+}
+.error-container h1 {
+    font-size: 2.5rem;
+    color: red;
+}
+.error-container p {
+    font-size: 1.2rem;
+    margin: 15px 0;
+}
+.error-details {
+    margin-top: 20px;
+    background-color: #ffffff;
+    padding: 50px;
+    border-radius: 5px;
+    border: transparent;
+}
+.hidden{
+    display: none
+}
+.buttons-container {
+    margin-top: 30px;
+}
+.btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+.btn:hover {
+    background-color: #0056b3;
+}
+
+
+/*------------------------------- File Content */
+
+.view-content-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.file-text {
+    margin: 10px;
+}
+
+
+.file-container {
+    align-items: center;
+    background-color: #153244;
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.file-content {
+    background-color: #dcdcdc;
+    color: #0056b3;
+    padding: 5px;
+    border-radius: 5px;
+    text-align: left;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+/*------------------------------- Edit / create Pages */
+
+.edit-form-container {
+    background-color: #153244;
+    width: 400px;
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+}
+
+
+.edit-form input[type="text"] {
+color: #fff;
+}
+
+.edit-form .required {
+display: none;
+}
+
+.edit-hidden {
+display: none;
+}
+
+.edit-cont-bottom {
+    margin-bottom: 30px;
+}
+
+.textarea {
+    width: 100%;
+    box-sizing: border-box;
+    height: 35px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.textarea-large {
+    width: 100%;
+    height: 150px;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 4px;
+    resize: vertical;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+/*------------------------------- Success Page */
+#success {
+    text-align: center;
+}
+
+.success-container {
+    margin: auto;
+}
+.loading-image {
+    height: 80px;
+    width: auto;
+}
+.hidden {
+    display: none;
+}
+
+
+/*------------------------------- Delete */
+
+#sha_field {
+    display: none;
+}
+
+.delete-file-name {
+    margin-bottom: 10px;
+}
+
+/*------------------------------- Footer */
+
+.footer {
+    justify-content: space-between;
+    height: 75px;
+    background-color: #153244;
+    padding: 0 20px;
+    color: white;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    margin: auto;
+    text-align: center;
+}
+
+.footer-text {
+    margin: 10px 0;
+    font-size: medium;
+    padding-top: 10px;
+}

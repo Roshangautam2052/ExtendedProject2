@@ -1,0 +1,40 @@
+@import helper._
+@(fileContent: Form[FileContent], userName: String, repoName: String, path: String, fileName: String, loggedInUser: Option[String])(implicit request: RequestHeader, messages: Messages)
+
+@main("File Content") {
+
+    <div class ="title">
+        <h1>@userName File Content</h1>
+    </div>
+    <div class="view-content-container">
+        <div class="title" >
+            <h3 class ="title fileName-Content">@fileName</h3>
+        </div>
+
+        <div class="file-container">
+            <div class ="file-content">
+                <pre class="file-text">class="file-name">@fileContent("content").value</pre>
+            @if(loggedInUser.contains(userName)){
+                <div class="file-content">
+                    <div class="">
+                        @helper.form(action = routes.GitHubRepoController.displayEditContent(userName, repoName, path)) {
+                        @helper.CSRF.formField
+                        <input type="hidden" name="content" value='@fileContent("content").value.getOrElse("")' />
+                        <input type="hidden" name="sha" value='@fileContent("sha").value.getOrElse("")' />
+                        <input type="hidden" name="path" value='@fileContent("path").value.getOrElse("")' />
+                        <input class="buttons" type="submit" value="Edit">
+                        }
+                    </div>
+
+                </div>
+                }
+            </div>
+            <div class="btn-row">
+                <button class="buttons crt-btn"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repoName)">Repositories</a></button>
+                <button class="buttons goBack crt-btn">Go Back</button>
+            </div>
+        </div>
+        <img class="robot-right" src="@routes.Assets.versioned("images/teach-robot.png")" alt="robot teaching scala on a blackboard"/>
+    </div>
+
+}

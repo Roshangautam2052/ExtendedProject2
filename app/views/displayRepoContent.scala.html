@@ -1,0 +1,55 @@
+
+@(repoContents: Option[Seq[FilesAndDirsModel]], userName: String, repoName: String, path:Option[String] = None, loggedInUser: Option[String]= None)
+
+@main("Display Repo Contents") {
+<div class="content-title">
+    <h1>Repository Files & Folders</h1>
+</div>
+<div class="public-repos-container">
+    @repoContents.map { repoContentsSeq =>
+    @if(repoContentsSeq.nonEmpty) {
+    @for(repoContent <- repoContentsSeq) {
+    <div class="form-container">
+        @if(repoContent.format == "file") {
+        <p>
+            <a href="@routes.GitHubRepoController.getGitRepoFileContent(userName, repoName, repoContent.path)">
+                <img class="icon" src="@routes.Assets.versioned("images/file.png")" alt="file icon">
+                @repoContent.name
+
+                @if(loggedInUser.contains(userName)){
+                    <button class="buttons"><a href="@routes.GitHubRepoController.displayDeleteForm(userName, repoName, repoContent.sha,
+                        repoContent.path, repoName)">Delete</a></button>
+                }
+            </a>
+        </p>
+        } else {
+        <p>
+            <a href="@routes.GitHubRepoController.openGitDir(userName, repoName, repoContent.path)">
+                <img class="icon" src="@routes.Assets.versioned("images/folder-icon.png")" alt="folder icon">
+                @repoContent.name
+            </a>
+        </p>
+        }
+    </div>
+    }
+    } else {
+    <h1> This repository is empty.</h1>
+    }
+    }.getOrElse {
+    <h1> This repository is empty.</h1>
+
+    }
+
+</div>
+<div class="display-repo-btn">
+    @if(loggedInUser.contains(userName) && path.isDefined){
+        <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, path)">Add File</a></button>
+    } else if (loggedInUser.contains(userName)) {
+    <button class="buttons"><a href="@routes.GitHubRepoController.displayCreateFileForm(userName, repoName, None)">Add File</a></button>
+    }
+    <button class="buttons goBack">Go Back</button>
+</div>
+
+<img class="robot-left inverted" src="@routes.Assets.versioned("images/file-robot.png")" alt="robot holding a clip board"/>
+}
+

@@ -1,7 +1,62 @@
-@()
+@(userForm: Option[Form[UserSearchParameter]] = None, user: Option[DataModel])(implicit request: RequestHeader, messages: Messages)
 
-@main("GitHub Example") {
-  <h1>Welcome to your version of GitHub</h1>
-  <h2>Let's get started we will be connecting to the GitHub API</h2>
-  <p>Have a look at the documentation for the API <a href="https://docs.github.com/en/rest" target="_blank">here</a></p>
+@main("Home Page") {
+<div class="home-page-container">
+  <img class="logo" src="@routes.Assets.versioned("images/logo.png")" alt="GitHub Engine logo"/>
+  <h1>THE GITHUB ENGINE</h1>
+  <div class="robot-cont">
+    <img class="cropped-robot-right" src="@routes.Assets.versioned("images/waving-robot-cropped.png")" alt="waving robot"/>
+  </div>
+</div>
+
+<!-- Display search bar if user is NOT logged in -->
+@if(!user.isDefined) {
+<!-- Conditionally display the search bar only if the form is present -->
+@userForm.map { form =>
+<div class="search-container">
+  <h2 class="find-title">Login:</h2>
+
+  <form action="@routes.GitHubRepoController.loginAUser()" method="GET" class="form-inline">
+    <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="userName" required>
+    <button class="buttons" type="submit">Search</button>
+  </form>
+</div>
+
+<!-- Display global form errors if present -->
+@form.globalError.map { error =>
+<div class="alert alert-danger">
+  @error.message
+</div>
+}
+
+<!-- Display individual form errors if the form has errors -->
+@if(form.hasErrors) {
+<div class="alert alert-danger">
+  @for(error <- form.errors) {
+  <p>@error.message</p>
+  }
+</div>
+}
+}
+}
+
+<!-- Display user details if the user is logged in -->
+@if(user.isDefined) {
+<div class="user-details-container">
+  <h3>You are logged in as:</h3>
+  <div class="form-container">
+    <p><strong>Username:</strong> @user.get.userName</p>
+    <!-- Add more user details here if needed -->
+  </div>
+  <div class="btn-row">
+    <button class="buttons"><a href="@routes.GitHubRepoController.getGitHubRepos(user.get.userName)">Repositories</a></button>
+    <button class="buttons"><a href="@routes.GitHubRepoController.logOut()">Log Out</a></button>
+  </div>
+</div>
+} else {
+<!-- Display a message if no user is found after form submission -->
+@if(userForm.exists(_.hasErrors) || request.queryString.contains("userName")) {
+<h2 class="not-found">No user found, try again.</h2>
+}
+}
 }

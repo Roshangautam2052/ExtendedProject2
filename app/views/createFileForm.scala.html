@@ -1,0 +1,36 @@
+@import models.DataModel
+@import helper._
+
+@(userName:String, repoName:String,  createForm: Form[CreateFileModel], path:Option[String]= None)(implicit request: RequestHeader, messages: Messages)
+
+@main("Create File"){
+<div class ="adduser-container">
+    <h1 class="title">Create File</h1>
+    <div class="edit-form-container edit-cont-bottom">
+        <div class="form">
+            @helper.form(action = routes.GitHubRepoController.createFile(userName, repoName, path)) {
+
+            @helper.CSRF.formField
+
+                <div class="field-cont">
+                    <div class="input-fields">
+                        <span>Commit Message:</span>
+                        @helper.textarea(createForm("message"), Symbol("placeholder") -> "Initial commit", Symbol("class") -> "textarea")
+                    </div>
+                    <div class="input-fields">
+                        <span>File Content:</span>
+                        @helper.textarea(createForm("content"), Symbol("placeholder") -> "Enter file content", Symbol("class") -> "textarea-large")
+                    </div>
+                        <div class="input-fields">
+                            <span>File Name:</span>
+                            @helper.textarea(createForm("fileName"), Symbol("placeholder") -> "file.html", Symbol("class") -> "textarea")
+                        </div>
+                </div>
+            <input class="buttons crt-btn" type="submit" value="Submit">
+            }
+        </div>
+    </div>
+    <button class="buttons goBack">Go Back</button>
+</div>
+<img class="robot-right" src="@routes.Assets.versioned("images/blueprint-robot.png")" alt="robot throwing peace signs"/>
+}

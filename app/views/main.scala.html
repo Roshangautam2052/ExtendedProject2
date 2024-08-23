@@ -13,13 +13,30 @@
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-
+        <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.versioned("/stylesheets/main.css")">
     </head>
     <body>
+    <!--- Header --->
+    <nav class="navbar">
+                <div class="navbar-nav">
+                    <a class="nav-link active" aria-current="page" href="@routes.HomeController.index">Home</a>
+                    <a class="nav-link" href="@routes.ApplicationController.findUser()">Find User</a>
+                    <a class="nav-link" href="@routes.ApplicationController.displayForm()">Add User</a>
+                </div>
+    </nav>
+        <div class="main-container">
+    <!--- Header End --->
         @* And here's where we render the `Html` object containing
          * the page content. *@
         @content
+        </div>
+    <footer class="footer">
+        <div class="footer-text">
+            <strong>A GitHub journey. By Roshan, Spencer & Jamie</strong>
+            <p>The GitHub Engine © <span id="current-year"> </span></p>
+        </div>
+    </footer>
 
-      <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript"></script>
     </body>
 </html>

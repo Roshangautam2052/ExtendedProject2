@@ -1,0 +1,37 @@
+@import helper._
+@(fileContent: Form[UpdateFileModel], userName: String, repoName: String, path: String)(implicit request: RequestHeader, messages: Messages)
+
+@main("File Content") {
+    <div class ="adduser-container">
+        <h1 class="title">Edit File</h1>
+        <div class="form-container edit-cont-bottom">
+            <div class="form">
+                @helper.form(action = routes.GitHubRepoController.editContent(userName, repoName, path)) {
+
+                <div class="field-cont">
+                    <div class="input-fields">
+                        <span>File Name:</span>
+                        @helper.textarea(fileContent("path"), Symbol("class") -> "textarea")
+                    </div>
+                    <div class="input-fields">
+                        <span>File Content:</span>
+                        @helper.textarea(fileContent("content"), Symbol("class") -> "textarea-large")
+                    </div>
+                        <div class="input-fields">
+                        <span>Commit Message:</span>
+                        @helper.textarea(fileContent("message"), Symbol("placeholder") -> "Edit reason...", Symbol("class") -> "textarea")
+                    </div>
+                </div>
+
+                @helper.CSRF.formField
+                <input type="hidden" name="sha" value='@fileContent("sha").value.getOrElse("")' />
+                <input class="buttons crt-btn" type="submit" value="Submit">
+                }
+            </div>
+        </div>
+        <button class="buttons goBack">Go Back</button>
+    </div>
+
+    <img class="robot-right" src="@routes.Assets.versioned("images/edits-robot.png")" alt="robot throwing peace signs"/>
+
+}

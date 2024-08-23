@@ -1,0 +1,32 @@
+@(repos: Option[Seq[PublicRepoDetails]])(implicit request: RequestHeader, messages: Messages)
+@main("Display Public Repos") {
+
+    @repos.map { repoSeq =>
+    @if(repoSeq.nonEmpty) {
+        <div class="title">
+            <h1>Repository Details</h1>
+        </div>
+        <div class="public-repos-container">
+            @for(repo <- repoSeq) {
+            <div class="repo-form-container">
+                <p><strong>Name:</strong> @repo.name</p>
+                <p><strong>Language:</strong> @repo.language</p>
+                <p><strong>Last Modified:</strong> @repo.pushedAt</p>
+                <button class="repo-buttons"><a href="@routes.GitHubRepoController.getGitDirsAndFiles(repo.userName, repo.name)">Open Repository</a></button>
+            </div>
+
+            }
+
+            </div>
+            <div class="display-repo-btn">
+                <button class="buttons goBack">Go Back</button>
+            </div>
+
+                } else {
+            <h1>No Public Repo's found</h1>
+            }
+            }.getOrElse {
+            <h1>No Public Repo's found</h1>
+            }
+        <img class="robot-right" src="@routes.Assets.versioned("images/folder-robot.png")" alt="robot holding a folder"/>
+        }

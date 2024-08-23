@@ -1,0 +1,48 @@
+@(userForm: Form[UserSearchParameter], user: Option[DataModel])(implicit request: RequestHeader, messages: Messages)
+@main("Display User") {
+
+    <div class="search-container">
+        <h1 class="find-title">Find User Profile</h1>
+
+        <form action="@routes.ApplicationController.readDatabaseOrAddFromGithub()" method="GET" class="form-inline">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="userName">
+            <button class="buttons" type="submit">Search</button>
+        </form>
+    </div>
+
+    @userForm.globalError.map { error =>
+        <div class="alert alert-danger">
+            @error.message
+        </div>
+    }
+
+    @if(userForm.hasErrors) {
+        <div class="alert alert-danger">
+        @for(error <- userForm.errors) {
+            <p>@error.message</p>
+        }
+        </div>
+    }
+    @if(user.isDefined) {
+        <div class="user-details-container">
+            <h3>User Details</h3>
+            <div class="form-container">
+                <p><strong>Username:</strong> @user.get.userName</p>
+                <p><strong>Date Account Created:</strong> @user.get.dateAccount</p>
+                <p><strong>Location:</strong> @user.get.location</p>
+                <p><strong>Number of Followers:</strong> @user.get.numberOfFollowers</p>
+                <p><strong>Number Following:</strong> @user.get.numberFollowing</p>
+                <p><strong>Has GitHub Account:</strong> @user.get.gitHubAccount</p>
+            </div>
+            <div class="btn-row">
+                <button class="buttons"><a href="@routes.GitHubRepoController.getGitHubRepos(user.get.userName)">Repositories</a> </button>
+                <button class="buttons goBack">Go Back</button>
+            </div>
+        </div>
+    } else {
+        @if(userForm.hasErrors || request.queryString.contains("userName")) {
+            <h2 class="not-found">No user found, try again.</h2>
+            }
+    }
+<img class="robot-right" src="@routes.Assets.versioned("images/info-robot.png")" alt="robot giving thumbs up"/>
+}

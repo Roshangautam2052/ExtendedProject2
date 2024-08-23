@@ -1,0 +1,25 @@
+@(message: String, userName: String, repo: String)(implicit request: RequestHeader, messages: Messages)
+
+    @main("Success") {
+        <div class="success-container">
+            <div id="success" class="hidden">
+                <div class="alert alert-success title">
+                    <h1>@message</h1>
+                </div>
+                <div>
+                    <button class="repo-buttons auto">
+                        <a href="@routes.GitHubRepoController.getGitDirsAndFiles(userName, repo)">Return to Repository</a>
+                    </button>
+                </div>
+                <img class="robot-left" src="@routes.Assets.versioned("images/rocket-robot.png")" alt="robot riding a rocket"/>
+                <img class="robot-right inverted" src="@routes.Assets.versioned("images/rocket-robot.png")" alt="robot riding a rocket"/>
+            </div>
+            <div id="loading">
+                <img src="@routes.Assets.versioned("/images/loading.gif")" alt="loading image" class = "loading-image">
+                <p>Loading....</p>
+                <div id ="error-details" class="error-details hidden">
+                    <p><strong>Status Code:</strong> @message</p>
+                </div>
+            </div>
+        </div>
+    }
