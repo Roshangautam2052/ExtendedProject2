@@ -148,43 +148,54 @@ echo $AuthPassword
 *The GitAuthToken file should now have your token. In Intellij you can extend this object with App to make it playable and print line the token if you would like to check. Remove the extends from App before continuing to avoid future clash.*
 
 -----
-## Future Developments: 
+## Future Developments:
 
-##### Auth token authorisation: 
+### Auth token authorisation:
 - In order to host this site live we would like to handle GitHub Auth Token authentication within the project
-- The process to do this is currently unclear 
+- The process to do this is currently unclear
 - There is a possibility of being able to receive and store as a local variable in the future
 - Buttons
 
-##### Log in and Log Out to use a Database instance
+### Log in and Log Out to use a Database instance
 - Currently, a logged-in user is stored in a local variable
 - Updating the logged-in user to be a database instance would allow for persistent data beyond compiles
 
-##### Update front end to be responsive
+### Update front end to be responsive
 - The front end requires further styling and design to be responsive to different device types and sizes
 - Front end development may be possible with bootstrap or other solutions
 
-##### the user DataModel
-- Updates to this model should include: 
+### the user DataModel
+- Updates to this model should include:
   - retrieving avatar url's from Github
   - removal of gitHub boolean as this serves no current purpose
 
-##### Displaying the logged-in user globally
-- Retrieving the logged-in user globally and utilising this within a display visible on all pages. 
+### Displaying the logged-in user globally
+- Retrieving the logged-in user globally and utilising this within a display visible on all pages.
 
-##### Updating the logged-in user's details
+### Updating the logged-in user's details
 - The function exists to update user details in the database
 - Moving the log in function to utilise the database would allow for this project to display varied data to GitHub.
 
-##### Updating the connector to handle errors
-- The connector can be improved to catch the Json error status returned by GitHub's API 
+### Updating the connector to handle errors
+- The connector can be improved to catch the Json error status returned by GitHub's API
 - handling these errors in the connector would simplify the GitHubService
 
-##### Flashing: Success and Error
+### Flashing: Success and Error
 - Flashing can be used in order to flash a success or error message after successful CRUD operations
 
-##### More Robots
-- self-explanatory- you can never have enough Robots! 
+### Updated UI for displaying User repositories
+- When navigating to a User's repositories this would display the user's details at the top of the page
+- This would better indicate whose repository you are within
+
+### Home screen for the logged-in user
+- The logged-in user should have a home page that allows for them to see their repositories and Account information
+
+### Globally available search
+- Placing the search bar within the top navigation would allow a user to search for other users from any page
+
+### More Robots
+- self-explanatory- you can never have enough Robots!
+
 
 -----
 
