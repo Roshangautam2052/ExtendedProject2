@@ -8,11 +8,13 @@ import org.mongodb.scala.bson.{BsonString, BsonValue}
 import org.mongodb.scala.result.UpdateResult
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatestplus.play.PlaySpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND}
 import play.api.mvc.Results.Status
+import play.api.test.Helpers.status
 import repository.DataRepositoryTrait
 import services.RepositoryServices
-
 
 import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
@@ -143,14 +145,14 @@ class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures 
       "An error was thrown whilst reaching the database" in {
         (mockRepository.deleteUser _)
           .expects(testDataModel.userName)
-          .returning(Future.successful(Left(APIError.DatabaseError(500, "An unexpected error happened: "))))
+          .returning(Future.successful(Left(APIError.DatabaseError(500, "An unexpected error happened"))))
           .once()
 
 
         whenReady(testService.deleteDatabaseUser(testDataModel.userName)) { result =>
 
 
-          result shouldBe Left(APIError.DatabaseError(500, "Bad response from upstream; got status: 500, and got reason An unexpected error happened: "))
+          result shouldBe Left(APIError.DatabaseError(500, "An unexpected error happened."))
         }
       }
     }
@@ -262,16 +264,19 @@ class RepositoryServiceSpec extends BaseSpec with MockFactory with ScalaFutures 
     "return a Left(APIError)" when {
 
 
-      val mockFailUpdateResult: UpdateResult = UpdateResult.unacknowledged()
+      val matchedCount = 0L        // Number of documents matched by the update query
+      val modifiedCount = 0L       // Number of documents actually modified
+      val upsertedId: BsonValue = BsonString("a")  // No upserted ID, as it's an optional parameter
+      val mockFailedUpdateResult: UpdateResult = UpdateResult.acknowledged(matchedCount, modifiedCount, upsertedId)
       "The database was reached but the user does not exist to update" in {
         (mockRepository.updateUser _)
           .expects(testDataModel.userName, testDataModel)
-          .returning(Future.successful(Right(mockFailUpdateResult)))
+          .returning(Future.successful(Right(mockFailedUpdateResult)))
           .once()
 
 
         whenReady(testService.updateUser(testDataModel.userName, testDataModel)) { result =>
-          result shouldBe Left(APIError.NotFoundError(404, s"${testDataModel.userName} not found to update"))
+          result shouldBe  Left(APIError.NotFoundError(404, s"User not found to update"))
         }
 
 

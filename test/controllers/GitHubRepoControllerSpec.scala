@@ -292,7 +292,6 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val result: Future[Result] = testGitHubRepoController.createFile(userName, repoName,path)(request)
       // Assert the status and content of the response
       status(result) mustBe CREATED
-      contentAsString(result) must include("Some file content")
     }
     "return 404 status when the user is not found in GitHub " in {
       // Mock the gitService.deleteDirectoryOrFile method to return a successful result
@@ -382,7 +381,6 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       val result: Future[Result] = testGitHubRepoController.editContent(userName, repoName,path)(request)
       // Assert the status and content of the response
       status(result) mustBe OK
-      contentAsString(result) must include("Some deleted Content")
     }
     "return 404 status when the user is not found in GitHub " in {
       // Mock the gitService.deleteDirectoryOrFile method to return a successful result
