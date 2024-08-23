@@ -19,6 +19,7 @@ class RepositoryServices @Inject() (dataRepository: DataRepositoryTrait)(implici
   def createUser(user:DataModel): Future[Either[ APIError, DataModel]]={
     dataRepository.createUser(user).map {
       case Right(createdUser) => Right(createdUser)
+      case Left(error @ APIError.BadAPIResponse(409, _)) => Left(error)
       case Left(APIError.DatabaseError(code, message)) => Left(APIError.DatabaseError(code, message))
       case Left(APIError.BadAPIResponse(code, message)) => Left(APIError.BadAPIResponse(code, message))
     }

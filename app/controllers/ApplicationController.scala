@@ -2,7 +2,7 @@ package controllers
 
 import models.DataModel.userForm
 import models.UserSearchParameter.userSearchForm
-import models.{DataModel, UserSearchParameter}
+import models.{APIError, DataModel, UserSearchParameter}
 import play.api
 import play.api.libs.json.{JsError, JsSuccess, JsValue, Json}
 import play.api.mvc._
@@ -63,6 +63,9 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
               case Right(dataModel) =>
                 repoService.createUser(dataModel).map {
                   case Right(createdUser) => Ok(views.html.finduser(UserSearchParameter.userSearchForm, Some(createdUser)))
+                  case Left(APIError.BadAPIResponse(409, message)) =>
+                    Ok(views.html.finduser(UserSearchParameter.userSearchForm, Some(dataModel)))
+
                   case Left(error) => NotFound(views.html.errorPage(error.httpResponseStatus, error.reason))
                 }
               case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
