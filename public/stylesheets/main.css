@@ -382,9 +382,10 @@ width: auto;
 .file-container {
     align-items: center;
     background-color: #153244;
-    max-width: 100%;
+    max-width: 600px;
     padding: 20px;
     border-radius: 10px;
+    margin-bottom: 30px;
 }
 
 .file-content {
@@ -395,6 +396,13 @@ width: auto;
     text-align: left;
     padding: 10px;
     box-sizing: border-box;
+}
+
+pre {
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
 }
 /*------------------------------- Edit / create Pages */
 
