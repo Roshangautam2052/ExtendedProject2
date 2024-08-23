@@ -374,7 +374,7 @@ width: auto;
     margin-right: auto;
 }
 
-.file-name {
+.file-text {
     margin: 10px;
 }
 
@@ -382,7 +382,7 @@ width: auto;
 .file-container {
     align-items: center;
     background-color: #153244;
-    width: 400px;
+    max-width: 100%;
     padding: 20px;
     border-radius: 10px;
 }
@@ -394,6 +394,7 @@ width: auto;
     border-radius: 5px;
     text-align: left;
     padding: 10px;
+    box-sizing: border-box;
 }
 /*------------------------------- Edit / create Pages */
 
