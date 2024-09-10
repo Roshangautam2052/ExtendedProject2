@@ -61,7 +61,6 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
             val name = (item \ "name").as[String]
             val language = (item \ "language").asOpt[String]
             val pushedAt = (item \ "pushed_at").as[String]
-            println(userName)
 
             PublicRepoDetails(userName, name, language, pushedAt)
           }.toSeq
