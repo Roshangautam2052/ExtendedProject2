@@ -4,7 +4,6 @@ import cats.data.EitherT
 import com.google.inject.Singleton
 import connector.GitHubConnector
 import models._
-import play.api.libs.json.JsNull.asOpt
 import play.api.libs.json._
 
 import java.time.ZonedDateTime
@@ -62,6 +61,7 @@ class GitHubServices @Inject()(connector: GitHubConnector) extends GitHubService
             val name = (item \ "name").as[String]
             val language = (item \ "language").asOpt[String]
             val pushedAt = (item \ "pushed_at").as[String]
+            println(userName)
 
             PublicRepoDetails(userName, name, language, pushedAt)
           }.toSeq
