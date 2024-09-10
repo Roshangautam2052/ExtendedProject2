@@ -4,10 +4,8 @@ import models.CreateFileModel.createForm
 import models.DeleteModel.deleteForm
 import models.FileContent.editForm
 import models.UpdateFileModel.updateForm
-import models.UserSearchParameter.userSearchForm
-import models.{DataModel, DeleteModel, FileContent, UpdateFileModel, UserSearchParameter}
+import models._
 import play.api
-import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.csrf.CSRF
 import services.{GitHubServiceTrait, RepositoryServices}
@@ -28,11 +26,13 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   }
 
   def displayDeleteForm(userName: String, repoName: String, sha: String, path: String, fileName: String): Action[AnyContent] = Action.async { implicit request =>
+    accessToken
     val filledForm = deleteForm.fill(DeleteModel("", sha))
     Future.successful(Ok(views.html.deleteRepoOrFile(userName, repoName, path, filledForm, fileName)))
   }
 
   def deleteDirectoryOrFile(userName: String, repo: String, path: String, fileName: String): Action[AnyContent] = Action.async { implicit request =>
+    accessToken
     deleteForm.bindFromRequest().fold( //from the implicit request we want to bind this to the form in our companion object
       formWithErrors => {
         //here write what you want to do if the form has errors

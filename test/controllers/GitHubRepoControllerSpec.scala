@@ -1,21 +1,18 @@
 package controllers
 
-import akka.stream.Materializer
-import akka.util.ByteString
 import cats.data.EitherT
 import models.CreateFileModel.createForm
 import models.DeleteModel.deleteForm
 import models.UpdateFileModel.updateForm
-import models.{APIError, CreateFileModel, DeleteModel, FileContent, FilesAndDirsModel, PublicRepoDetails, UpdateFileModel}
+import models._
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchersSugar.eqTo
 import org.mockito.MockitoSugar
 import org.scalatestplus.play.PlaySpec
 import play.api.data.FormBinding.Implicits.formBinding
 import play.api.http.Status._
-import play.api.libs.streams.Accumulator
 import play.api.mvc._
-import play.api.test.CSRFTokenHelper.CSRFFRequestHeader
+import play.api.test.CSRFTokenHelper.CSRFRequest
 import play.api.test.Helpers.{GET, POST, contentAsString, defaultAwaitTimeout, status}
 import play.api.test.{FakeRequest, Helpers}
 import services.{GitHubServiceTrait, RepositoryServices}
@@ -433,6 +430,46 @@ class GitHubRepoControllerSpec extends PlaySpec with MockitoSugar {
       // Assert the status and content of the response
       status(result) mustBe INTERNAL_SERVER_ERROR
       contentAsString(result) must include("Error with Github Response Data")
+    }
+  }
+  "GitHubRepoController.displayDeleteForm" should {
+    "return 400 Ok when it is invoked" in {
+      val userName:String = "testUserName"
+      val repoName:String = "testRepoName"
+      val sha:String = "someSha"
+      val path:String = "someTestPath"
+      val file:String = "filePath"
+      implicit val request: Request[AnyContentAsFormUrlEncoded] = FakeRequest(GET, s"/GitHub/deleteRepos/showForm/$userName/$repoName/$sha/$path/$file ")
+        .withFormUrlEncodedBody( "message" -> "someMessage", "sha" -> "someSha").withCSRFToken
+      val result: Future[Result] = testGitHubRepoController.displayDeleteForm(userName, repoName, sha, path, file)(request)
+      status(result) mustBe OK
+    }
+  }
+  "GitHubRepoController.displayEditContent" should{
+    "return 400 when there is error in the form"  in  {
+      val userName:String = "testUserName"
+      val repoName:String = "testRepoName"
+      val path:String = "filePath"
+      implicit val request: Request[AnyContentAsFormUrlEncoded] = FakeRequest(POST, s"/GitHub/editFile/showForm/$userName/$repoName/$path   ")
+        .withFormUrlEncodedBody( "content" ->"anycontent",
+          "sha" -> "nonemptySha",
+          "path" -> "").withCSRFToken
+
+      val result:Future[Result] = testGitHubRepoController.displayEditContent(userName, repoName, path)(request)
+      status(result) mustBe BAD_REQUEST
+    }
+    "return 200 Ok when there is no error in the form"  in  {
+      val userName:String = "testUserName"
+      val repoName:String = "testRepoName"
+      val path:String = "filePath"
+      implicit val request: Request[AnyContentAsFormUrlEncoded] = FakeRequest(POST, s"/GitHub/editFile/showForm/$userName/$repoName/$path   ")
+        .withFormUrlEncodedBody( "content" ->"anycontent",
+          "sha" -> "nonemptySha",
+          "path" -> "nonEmptyPath").withCSRFToken
+
+      val result:Future[Result] = testGitHubRepoController.displayEditContent(userName, repoName, path)(request)
+      status(result) mustBe OK
+
     }
   }
 
