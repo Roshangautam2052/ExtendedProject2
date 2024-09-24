@@ -10,7 +10,7 @@ GET           /                                                                 
 # Map static resources from the /public folder to the /assets URL path
 GET           /assets/*file                                                                controllers.Assets.versioned(path="/public", file: Asset)
 
-GET           /api/read                                                                        controllers.ApplicationController.readDatabaseOrAddFromGithub()
+GET           /api/read                                                                        controllers.ApplicationController.readDatabaseOrGithub()
 
 
 # Database users
@@ -36,7 +36,7 @@ POST          /addUser/form                                                     
 GET           /findUser                                                                    controllers.ApplicationController.findUser()
 
 GET           /login/login                                                                  controllers.GitHubRepoController.loginAUser()
-GET           /login/logout                                                                  controllers.GitHubRepoController.logOut()
+GET           /login/logout/:userName                                                      controllers.GitHubRepoController.logOut(userName)
 
 GET           /Github/repo/:userName                                                       controllers.GitHubRepoController.getGitHubRepos(userName)
 GET           /Github/repo/content/:userName/:repoName                                     controllers.GitHubRepoController.getGitDirsAndFiles(userName, repoName)

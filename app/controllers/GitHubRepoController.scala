@@ -10,6 +10,7 @@ import play.api
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.filters.csrf.CSRF
+import repository.LoginRepository
 import services.{GitHubServiceTrait, RepositoryServices}
 
 import javax.inject.{Inject, Singleton}
@@ -18,7 +19,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class GitHubRepoController @Inject()(val controllerComponents: ControllerComponents,
                                      val gitService: GitHubServiceTrait,
-                                    val repoService: RepositoryServices)
+                                    val repoService: RepositoryServices,
+                                    val loginRepoService: LoginRepository)
                                     (implicit val ex: ExecutionContext) extends BaseController with play.api.i18n.I18nSupport {
 
 
@@ -162,9 +164,11 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
   }
 
 
-  def logOut(): Action[AnyContent] = Action.async { implicit request =>
-    DataModel.logOut()
-    Future.successful(Redirect(routes.HomeController.index))
+  def logOut(userName: String): Action[AnyContent] = Action.async { implicit request =>
+    loginRepoService.logOut(userName).map {
+      case Right(deleteResult) =>    Redirect(routes.HomeController.index)
+      case Left(error) => Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason))
+    }
   }
 
   def loginAUser(): Action[AnyContent] = Action.async { implicit request =>
@@ -174,15 +178,25 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
         val userName = userData.userName
         repoService.readUser(userName).flatMap {
           case Right(user) =>
-            DataModel.logIn(user)
-            val loggedin = DataModel.getCurrentUser
-            Future.successful(Ok(views.html.index(None, loggedin)))
+            loginRepoService.logIn(user).flatMap {
+              case Right(user) =>
+                loginRepoService.findCurrentUser().flatMap{
+                  case Right(user) => Future.successful(Ok(views.html.index(None, user)))
+                  case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
+                }
+              case Left(error) =>   Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
+            }
           case Left(error) if error.httpResponseStatus == 404 =>
             gitService.getGitHubUser(userName).value.flatMap {
               case Right(dataModel) =>
-                DataModel.logIn(dataModel)
-                val loggedin = DataModel.getCurrentUser
-                Future.successful(Ok(views.html.index(None, loggedin)))
+                loginRepoService.logIn(dataModel).flatMap {
+                  case Right(user) =>
+                    loginRepoService.findCurrentUser().flatMap{
+                      case Right(user) => Future.successful(Ok(views.html.index(None, user)))
+                      case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
+                    }
+                  case Left(error) =>   Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
+                }
               case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
             }
           case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
@@ -190,6 +204,10 @@ class GitHubRepoController @Inject()(val controllerComponents: ControllerCompone
       }
     )
   }
+
+  // TODO:
+  //  Not completed:
+  //  This loginAUser function needs to create a user in the database or update the user
 
 }
 

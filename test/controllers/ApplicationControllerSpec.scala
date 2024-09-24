@@ -157,7 +157,7 @@ val testDataNotOnGitHubUpdate: DataModel = DataModel(
         status(createResult) shouldBe Status.CREATED
 
         val readRequest: FakeRequest[AnyContentAsEmpty.type] = buildGet(s"/api/read?userName=${testDataNotOnGitHub.userName}")
-        val result = TestApplicationController.readDatabaseOrAddFromGithub()(readRequest)
+        val result = TestApplicationController.readDatabaseOrGithub()(readRequest)
 
         status(result) shouldBe OK
         whenReady(result) { result =>
@@ -173,7 +173,7 @@ val testDataNotOnGitHubUpdate: DataModel = DataModel(
         beforeEach()
 
         val readRequest: FakeRequest[AnyContentAsEmpty.type] = buildGet(s"/api/read?userName=${testDataGitValid.userName}")
-        val result = TestApplicationController.readDatabaseOrAddFromGithub()(readRequest)
+        val result = TestApplicationController.readDatabaseOrGithub()(readRequest)
 
         status(result) shouldBe OK
         whenReady(result) { result =>
@@ -193,7 +193,7 @@ val testDataNotOnGitHubUpdate: DataModel = DataModel(
       "[400- BadRequest] the userName was not provided and search processed" in {
         beforeEach()
         val requestWithErrors: FakeRequest[AnyContentAsEmpty.type] = buildGet("/api/read?userName=")
-        val result = TestApplicationController.readDatabaseOrAddFromGithub()(requestWithErrors)
+        val result = TestApplicationController.readDatabaseOrGithub()(requestWithErrors)
 
         status(result) shouldBe BAD_REQUEST
         afterEach()
@@ -203,7 +203,7 @@ val testDataNotOnGitHubUpdate: DataModel = DataModel(
         beforeEach()
         val notAGitHubUserName = "ThisCannotBeAGitHubUserThatWouldBeCrazy"
         val requestWithErrors: FakeRequest[AnyContentAsEmpty.type] = buildGet(s"/api/read?userName=$notAGitHubUserName")
-        val result = TestApplicationController.readDatabaseOrAddFromGithub()(requestWithErrors)
+        val result = TestApplicationController.readDatabaseOrGithub()(requestWithErrors)
 
         status(result) shouldBe NOT_FOUND
         afterEach()

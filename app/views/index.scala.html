@@ -20,6 +20,9 @@
     <input class="form-control mr-sm-2" type="search" placeholder="Search User" aria-label="Search" name="userName" required>
     <button class="buttons" type="submit">Search</button>
   </form>
+  <div class="btn-row">
+    <button class="buttons"><a href="@routes.ApplicationController.displayForm()">Create a new account</a></button>
+  </div>
 </div>
 
 <!-- Display global form errors if present -->
@@ -50,7 +53,7 @@
   </div>
   <div class="btn-row">
     <button class="buttons"><a href="@routes.GitHubRepoController.getGitHubRepos(user.get.userName)">Repositories</a></button>
-    <button class="buttons"><a href="@routes.GitHubRepoController.logOut()">Log Out</a></button>
+    <button class="buttons"><a href="@routes.GitHubRepoController.logOut(user.get.userName)">Log Out</a></button>
   </div>
 </div>
 } else {

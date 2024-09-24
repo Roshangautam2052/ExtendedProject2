@@ -42,7 +42,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
       },
       formData => {
         repoService.createUser(formData).map {
-          case Right(createdUser) => Created(Json.toJson(createdUser))
+          case Right(createdUser) => Created(views.html.index(None, Some(createdUser)))
           case Left(error) => BadRequest(views.html.errorPage(BAD_REQUEST, "This user already exists"))
         }
       }
@@ -51,7 +51,7 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
 
   /** --------------------------------------- Create Search Bar */
 
-  def readDatabaseOrAddFromGithub(): Action[AnyContent] = Action.async { implicit request =>
+  def readDatabaseOrGithub(): Action[AnyContent] = Action.async { implicit request =>
     UserSearchParameter.userSearchForm.bindFromRequest().fold(
       formWithErrors => Future.successful(BadRequest(views.html.errorPage(BAD_REQUEST, " There is error in the form."))),
       userData => {
@@ -61,20 +61,24 @@ class ApplicationController @Inject()(val controllerComponents: ControllerCompon
           case Left(error) if error.httpResponseStatus == 404 =>
             gitService.getGitHubUser(userName).value.flatMap {
               case Right(dataModel) =>
-                repoService.createUser(dataModel).map {
-                  case Right(createdUser) => Ok(views.html.finduser(UserSearchParameter.userSearchForm, Some(createdUser)))
-                  case Left(APIError.BadAPIResponse(409, message)) =>
-                    Ok(views.html.finduser(UserSearchParameter.userSearchForm, Some(dataModel)))
-
-                  case Left(error) => NotFound(views.html.errorPage(error.httpResponseStatus, error.reason))
+                repoService.createUser(dataModel).flatMap {
+                  case Right(data) => Future.successful(Ok(views.html.finduser(UserSearchParameter.userSearchForm, Some(data))))
+                  case Left(error) => Future.successful(NotFound(views.html.errorPage(error.httpResponseStatus, error.reason)))
+                }
+              case Left(error) => Future.successful(NotFound(views.html.errorPage(error.httpResponseStatus, error.reason)))
                 }
               case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
             }
-          case Left(error) => Future.successful(Status(error.httpResponseStatus)(views.html.errorPage(error.httpResponseStatus, error.reason)))
-        }
       }
     )
   }
+  // TODO:
+  //  Completed:
+  //  Reads Database for any unique user created
+  //  Reads GitHub for any Github user.
+  //  Removed the creating a user from github in database to use this for login function
+  //  To be Completed:
+  //  Update testing
 
   def createDatabaseUser(): Action[JsValue] = Action.async(parse.json) { implicit request =>
     request.body.validate[DataModel] match {

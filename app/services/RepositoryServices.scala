@@ -5,25 +5,27 @@ import cats.data.EitherT
 import com.mongodb.client.result.DeleteResult
 import models.{APIError, DataModel}
 import org.mongodb.scala.result
-import repository.{DataRepository, DataRepositoryTrait}
-
+import repository.{DataRepository, DataRepositoryTrait, LoginRepositoryTrait}
 
 import javax.inject._
 import scala.concurrent.{ExecutionContext, Future}
 
 
 @Singleton
-class RepositoryServices @Inject() (dataRepository: DataRepositoryTrait)(implicit ec: ExecutionContext) {
+class RepositoryServices @Inject()(dataRepository: DataRepositoryTrait, loginRepo: LoginRepositoryTrait)(implicit ec: ExecutionContext) {
 
-
-  def createUser(user:DataModel): Future[Either[ APIError, DataModel]]={
-    dataRepository.createUser(user).map {
-      case Right(createdUser) => Right(createdUser)
-      case Left(error @ APIError.BadAPIResponse(409, _)) => Left(error)
-      case Left(APIError.DatabaseError(code, message)) => Left(APIError.DatabaseError(code, message))
-      case Left(APIError.BadAPIResponse(code, message)) => Left(APIError.BadAPIResponse(code, message))
+  def createUser(user: DataModel): Future[Either[APIError, DataModel]] = {
+    dataRepository.createUser(user).flatMap {
+      case Right(createdUser) =>
+        loginRepo.logIn(createdUser).map {
+          case Right(_) => Right(createdUser)
+          case Left(loginError) => Left(loginError)
+        }
+      case Left(error) =>
+        Future.successful(Left(error))
     }
   }
+
 
 
   def deleteDatabaseUser(userName: String): Future[Either[APIError, DeleteResult]] = {

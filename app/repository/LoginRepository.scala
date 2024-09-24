@@ -17,21 +17,21 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 
-@ImplementedBy(classOf[DataRepository])
-trait DataRepositoryTrait {
-  def createUser(user:DataModel): Future[Either[APIError, DataModel]]
-  def deleteUser(userName: String): Future[Either[APIError, DeleteResult]]
-  def findUserByName(userName:String): Future[Either[APIError, DataModel]]
+@ImplementedBy(classOf[LoginRepository])
+trait LoginRepositoryTrait {
+  def logIn(user:DataModel): Future[Either[APIError, DataModel]]
+  def logOut(userName: String): Future[Either[APIError, DeleteResult]]
+  def findCurrentUser(): Future[Either[APIError, Option[DataModel]]]
   def updateUser(userName: String, updatedUser: DataModel): Future[Either[APIError.BadAPIResponse, UpdateResult]]
   def deleteAll(): Future[Unit]
 }
 
 
 @Singleton
-class DataRepository @Inject()(
+class LoginRepository @Inject()(
                                 mongoComponent: MongoComponent
                               )(implicit ec: ExecutionContext) extends PlayMongoRepository[DataModel](
-  collectionName = "createdUsers",
+  collectionName = "loggedInUser",
   mongoComponent = mongoComponent,
   domainFormat = DataModel.formats,
   indexes = Seq(IndexModel(
@@ -40,15 +40,15 @@ class DataRepository @Inject()(
   replaceIndexes = false
 
 
-) with DataRepositoryTrait {
+) with LoginRepositoryTrait {
 
 
-  override def createUser(user: DataModel): Future[Either[APIError, DataModel]] = {
+  override def logIn(user: DataModel): Future[Either[APIError, DataModel]] = {
     val userExists =  collection.find(byName(user.userName)).toFuture()
 
     userExists.flatMap {
       case existingUsers if existingUsers.nonEmpty =>
-        Future.successful(Left(APIError.BadAPIResponse(409, s"User ${user.userName} already exists in the database")))
+        Future.successful(Left(APIError.BadAPIResponse(409, s"User: ${user.userName} already logged in (exists in the database)")))
 
       case _ =>
         val mappedUser = collection.insertOne(user).toFuture()
@@ -70,7 +70,7 @@ class DataRepository @Inject()(
   }
 
 
-  override def deleteUser(userName: String): Future[Either[APIError, DeleteResult]] = {
+  override def logOut(userName: String): Future[Either[APIError, DeleteResult]] = {
     collection.deleteOne(filter = byName(userName)).toFuture().map {
         deleteResult =>
           Right(deleteResult)
@@ -82,11 +82,11 @@ class DataRepository @Inject()(
   }
 
 
-  override def findUserByName(userName:String): Future[Either[APIError, DataModel]] = {
-    collection.find(byName(userName)).toFuture().map { result =>
+  override def findCurrentUser(): Future[Either[APIError, Option[DataModel]]] = {
+    collection.find().toFuture().map { result =>
       result.headOption match {
-        case Some(user) => Right(user)
-        case None => Left(APIError.NotFoundError(404, s"The $userName is not found in the database."))
+        case Some(user) => Right(Some(user))
+        case None => Right(None)
       }
     }.recover {
       case NonFatal(e) =>
