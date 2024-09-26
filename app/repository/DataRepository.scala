@@ -31,7 +31,7 @@ trait DataRepositoryTrait {
 class DataRepository @Inject()(
                                 mongoComponent: MongoComponent
                               )(implicit ec: ExecutionContext) extends PlayMongoRepository[DataModel](
-  collectionName = "createdUsers",
+  collectionName = "Users",
   mongoComponent = mongoComponent,
   domainFormat = DataModel.formats,
   indexes = Seq(IndexModel(

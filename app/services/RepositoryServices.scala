@@ -15,15 +15,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class RepositoryServices @Inject()(dataRepository: DataRepositoryTrait, loginRepo: LoginRepositoryTrait)(implicit ec: ExecutionContext) {
 
   def createUser(user: DataModel): Future[Either[APIError, DataModel]] = {
-    dataRepository.createUser(user).flatMap {
-      case Right(createdUser) =>
-        loginRepo.logIn(createdUser).map {
-          case Right(_) => Right(createdUser)
+    dataRepository.createUser(user).map {
+      case Right(createdUser) => Right(createdUser)
+      case Left(error) => Left(error)
+    }
+  }
+
+  def LogInUser(user: DataModel): Future[Either[APIError, DataModel]] = {
+        loginRepo.logIn(user).map {
+          case Right(user) => Right(user)
           case Left(loginError) => Left(loginError)
         }
-      case Left(error) =>
-        Future.successful(Left(error))
-    }
   }
 
 
